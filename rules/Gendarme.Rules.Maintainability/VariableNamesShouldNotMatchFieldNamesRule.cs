@@ -3,7 +3,7 @@
 //
 // Authors:
 //	N Lum <nol888@gmail.com>
-//
+// 
 // Copyright (C) 2010 N Lum
 //
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -44,28 +44,28 @@ namespace Gendarme.Rules.Maintainability {
 	/// <example>
 	/// Bad example:
 	/// <code>
-	/// 	public class Bad {
-	/// 		public int value;
+	///	public class Bad {
+	///		public int value;
 	///
-	/// 		public void DoSomething (int value)
-	/// 		{
-	/// 			// without 'this.' the field will never be set
-	/// 			this.value = value;
-	/// 		}
-	/// 	}
+	///		public void DoSomething (int value)
+	///		{
+	///			// without 'this.' the field will never be set
+	///			this.value = value;
+	///		}
+	///	}
 	/// </code>
 	/// </example>
 	/// <example>
 	/// Good example:
 	/// <code>
-	/// 	public class Good {
-	/// 		public int value;
+	///	public class Good {
+	///		public int value;
 	///
-	/// 		public void DoSomething (int integralValue)
-	/// 		{
-	/// 			value = integralValue;
-	/// 		}
-	/// 	}
+	///		public void DoSomething (int integralValue)
+	///		{
+	///			value = integralValue;
+	///		}
+	///	}
 	/// </code>
 	/// </example>
 
@@ -111,10 +111,10 @@ namespace Gendarme.Rules.Maintainability {
 					// Iterate through all variables in the method body.
 					foreach (VariableDefinition var in body.Variables) {
 						// if the name is compiler generated or if we do not have debugging symbols...
-						if (var.IsGeneratedName ())
+						if (var.IsGeneratedName (method.DebugInformation))
 							continue;
-						if (fields.Contains (var.Name))
-							Runner.Report (method, Severity.Medium, Confidence.Normal, "Local variable name: '" + var.Name + "'");
+						if (fields.Contains (var.GetName(method.DebugInformation)))
+							Runner.Report (method, Severity.Medium, Confidence.Normal, var.GetName(method.DebugInformation));
 					}
 				}
 			}

@@ -80,7 +80,7 @@ namespace Gendarme.Rules.Gendarme {
 		/// <returns>Result of the check</returns>
 		public RuleResult CheckType (TypeDefinition type)
 		{
-			if (type.IsAbstract || !type.HasMethods || !type.Implements ("Gendarme.Framework", "IRule"))
+			if (type.IsAbstract || !type.HasMethods || !type.Implements ("Gendarme.Framework", "IRule", null))
 				return RuleResult.DoesNotApply;
 
 			foreach (MethodDefinition method in type.Methods) {
@@ -94,7 +94,7 @@ namespace Gendarme.Rules.Gendarme {
 					MethodReference m = (instruction.Operand as MethodReference);
 					if (m == null || (m.Name != "Report"))
 						continue;
-					if (m.DeclaringType.IsNamed ("Gendarme.Framework", "IRunner"))
+					if (m.DeclaringType.IsNamed ("Gendarme.Framework", "IRunner", null))
 						return RuleResult.Success;
 				}
 

@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using System.Linq;
 
 using Mono.Cecil;
@@ -34,7 +33,7 @@ using Gendarme.Framework.Helpers;
 using Gendarme.Framework.Rocks;
 
 namespace Gendarme.Rules.Design {
-
+	
 	/// <summary>
 	/// There is a convention that should be followed when implementing <c>IDisposable</c>. Part
 	/// of this convention is that Dispose methods should have specific signatures. In
@@ -52,13 +51,13 @@ namespace Gendarme.Rules.Design {
 	/// 	{
 	/// 		Dispose (false);
 	/// 	}
-	///
+	/// 	
 	/// 	public void Dispose ()
 	/// 	{
 	/// 		Dispose (true);
 	/// 		GC.SuppressFinalize (this);
 	/// 	}
-	///
+	/// 	
 	/// 	// This is not virtual so resources in derived classes cannot be
 	/// 	// cleaned up in a timely fashion if Unsealed.Dispose () is called.
 	/// 	protected void Dispose (bool disposing)
@@ -68,7 +67,7 @@ namespace Gendarme.Rules.Design {
 	/// 			Disposed = true;
 	/// 		}
 	/// 	}
-	///
+	/// 	
 	/// 	protected bool Disposed {
 	/// 		get;
 	/// 		set;
@@ -81,18 +80,18 @@ namespace Gendarme.Rules.Design {
 	/// <code>
 	/// public class Unsealed : IDisposable
 	/// {
-	/// 	// Unsealed classes should have a finalizer even if they do nothing
-	/// 	// in the Dispose (false) case to ensure derived classes are cleaned
+	/// 	// Unsealed classes should have a finalizer even if they do nothing 
+	/// 	// in the Dispose (false) case to ensure derived classes are cleaned 
 	/// 	// up properly.
 	/// 	~Unsealed ()
 	/// 	{
 	/// 		Dispose (false);
 	/// 	}
-	///
+	/// 	
 	/// 	public Unsealed ()
 	/// 	{
 	/// 	}
-	///
+	/// 	
 	/// 	public void Work ()
 	/// 	{
 	/// 		// In general all public methods should throw ObjectDisposedException
@@ -101,41 +100,41 @@ namespace Gendarme.Rules.Design {
 	/// 			throw new ObjectDisposedException (GetType ().Name);
 	/// 		}
 	/// 	}
-	///
+	/// 	
 	/// 	public void Dispose ()
 	/// 	{
 	/// 		Dispose (true);
 	/// 		GC.SuppressFinalize (this);
 	/// 	}
-	///
+	/// 	
 	/// 	protected virtual void Dispose (bool disposing)
 	/// 	{
 	/// 		// Multiple Dispose calls should be OK.
 	/// 		if (!Disposed) {
 	/// 			if (disposing) {
 	/// 				// None of our fields have been finalized so it's safe to
-	/// 				// clean them up here.
+	/// 				// clean them up here. 
 	/// 			}
-	///
+	/// 		
 	/// 			// Our fields may have been finalized so we should only
 	/// 			// touch native fields (e.g. IntPtr or UIntPtr fields) here.
 	/// 			Disposed = true;
 	/// 		}
 	/// 	}
-	///
+	/// 	
 	/// 	protected bool Disposed {
-	/// 		get;
+	/// 		get; 
 	/// 		private set;
 	/// 	}
 	/// }
 	/// </code>
 	/// </example>
 	/// <remarks>This rule is available since Gendarme 2.6</remarks>
-
+	
 	[Problem ("An IDisposable type does not conform to the guidelines for its Dispose methods.")]
 	[Solution ("Fix the signature of the methods or add the Dispose (bool) overload.")]
 	public sealed class UseCorrectDisposeSignaturesRule : Rule, ITypeRule {
-
+	
 		/// <summary>
 		/// Check type
 		/// </summary>
@@ -145,16 +144,16 @@ namespace Gendarme.Rules.Design {
 		{
 			if (type.IsInterface || type.IsEnum || type.IsDelegate ())
 				return RuleResult.DoesNotApply;
-
-			if (type.Implements ("System", "IDisposable")) {
+			
+			if (type.Implements ("System", "IDisposable", null)) {
 				Log.WriteLine (this);
 				Log.WriteLine (this, "----------------------------------");
 				Log.WriteLine (this, type);
-
+				
 				MethodDefinition dispose0 = null;
 				MethodDefinition dispose1 = null;
 				FindDisposeMethods (type, ref dispose0, ref dispose1);
-
+				
 				// The compiler will normally require that the type have a declaration for
 				// Dispose unless the base class also implements IDisposable. In that
 				// case we'll ignore any defects because the type doesn't actually
@@ -164,19 +163,19 @@ namespace Gendarme.Rules.Design {
 					CheckDispose1 (type, dispose1);
 				}
 			}
-
+			
 			return Runner.CurrentRuleResult;
 		}
-
+		
 		private void FindDisposeMethods (TypeDefinition type, ref MethodDefinition dispose0, ref MethodDefinition dispose1)
 		{
 			foreach (MethodDefinition method in type.Methods.Where (m => m.Name == "Dispose")) {
 				if (MethodSignatures.Dispose.Matches (method)) {
 					dispose0 = method;
-
+				
 				} else if (DisposeBool.Matches (method)) {
 					dispose1 = method;
-
+				
 				} else {
 					string message = "Found a Dispose method with a bad signature.";
 					Log.WriteLine (this, "{0}", message);
@@ -184,7 +183,7 @@ namespace Gendarme.Rules.Design {
 				}
 			}
 		}
-
+		
 		private void CheckDispose0 (MethodDefinition dispose0)
 		{
 			if (dispose0 != null) {
@@ -193,7 +192,7 @@ namespace Gendarme.Rules.Design {
 					Log.WriteLine (this, "{0}", message);
 					Runner.Report (dispose0, Severity.Medium, Confidence.Total, message);
 				}
-
+				
 				if (!dispose0.IsVirtual && (dispose0.Attributes & MethodAttributes.NewSlot) == 0) {
 					string message = "The type should not hide the base class Dispose () method.";
 					Log.WriteLine (this, "{0}", message);
@@ -201,7 +200,7 @@ namespace Gendarme.Rules.Design {
 				}
 			}
 		}
-
+		
 		private void CheckDispose1 (TypeDefinition type, MethodDefinition dispose1)
 		{
 			if (type.IsSealed) {
@@ -212,7 +211,7 @@ namespace Gendarme.Rules.Design {
 						Runner.Report (dispose1, Severity.Medium, Confidence.Total, message);
 					}
 				}
-
+			
 			} else {
 				if (dispose1 == null) {
 					if (DirectlyImplementsIDisposable (type)) {
@@ -220,14 +219,14 @@ namespace Gendarme.Rules.Design {
 						Log.WriteLine (this, "{0}", message);
 						Runner.Report (type, Severity.Medium, Confidence.Total, message);
 					}
-
+				
 				} else {
 					if (!dispose1.IsFamily) {
 						string message = "Dispose (bool) should be protected for unsealed types.";
 						Log.WriteLine (this, "{0}", message);
 						Runner.Report (type, Severity.Medium, Confidence.Total, message);
 					}
-
+					
 					if (!dispose1.IsPrivate && !dispose1.IsVirtual) {
 						string message = "Dispose (bool) should be virtual for unsealed types.";
 						Log.WriteLine (this, "{0}", message);
@@ -236,19 +235,19 @@ namespace Gendarme.Rules.Design {
 				}
 			}
 		}
-
+		
 		static bool DirectlyImplementsIDisposable (TypeDefinition type)
 		{
 			if (type.HasInterfaces) {
-				foreach (TypeReference candidate in type.Interfaces) {
-					if (candidate.IsNamed ("System", "IDisposable"))
+				foreach (TypeReference candidate in type.Interfaces.Select(t => t.InterfaceType)) {
+					if (candidate.IsNamed ("System", "IDisposable", null))
 						return true;
 				}
 			}
-
+			
 			return false;
 		}
-
+		
 		private static readonly MethodSignature DisposeBool = new MethodSignature ("Dispose", "System.Void", new string [] { "System.Boolean"});
 	}
 }

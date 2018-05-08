@@ -33,6 +33,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using Mono.Cecil;
 
@@ -50,7 +51,7 @@ namespace Gendarme.Framework.Rocks {
 	/// <summary>
 	/// TypeRocks contains extensions methods for Type[Definition|Reference]
 	/// and the related collection classes.
-	///
+	/// 
 	/// Note: whenever possible try to use TypeReference since it's extend the
 	/// reach/usability of the code.
 	/// </summary>
@@ -66,17 +67,17 @@ namespace Gendarme.Framework.Rocks {
 		{
 			var types = new List<TypeReference> ();
 			types.Add (self);
-
+			
 			int i = 0;
 			while (i < types.Count) {
 				TypeDefinition type = types [i++].Resolve ();
 				if (type != null) {
 					yield return type;
-
-					foreach (TypeReference super in type.Interfaces) {
+					
+					foreach (TypeReference super in type.Interfaces.Select(t => t.InterfaceType)) {
 						types.AddIfNew (super);
 					}
-
+					
 					if (type.BaseType != null)
 						types.AddIfNew (type.BaseType);
 				}
@@ -235,7 +236,7 @@ namespace Gendarme.Framework.Rocks {
 
 		/// <summary>
 		/// Recursively check if the type implemented a specified interface. Note that it is possible
-		/// that we might now be able to know everything that a type implements since the assembly
+		/// that we might now be able to know everything that a type implements since the assembly 
 		/// where the information resides could be unavailable. False is returned in this case.
 		/// </summary>
 		/// <param name="self">The TypeDefinition on which the extension method can be called.</param>
@@ -243,8 +244,8 @@ namespace Gendarme.Framework.Rocks {
 		/// <param name="name">The name of the interface to be matched</param>
 		/// <returns>True if we found that the type implements the interface, False otherwise (either it
 		/// does not implement it, or we could not find where it does).</returns>
-		/// <remarks>Use this extension to get included interface in current interface type.</remarks>
-		public static bool Implements (this TypeReference self, string nameSpace, string name)
+        /// <remarks>Use this extension to get included interface in current interface type.</remarks>
+		public static bool Implements (this TypeReference self, string nameSpace, string name, TypeReference fallback)
 		{
 			if (nameSpace == null)
 				throw new ArgumentNullException ("nameSpace");
@@ -258,22 +259,22 @@ namespace Gendarme.Framework.Rocks {
 				return false;	// not enough information available
 
 			// special case, check if we implement ourselves
-			if (type.IsInterface && type.IsNamed (nameSpace, name))
+			if (type.IsInterface && type.IsNamed (nameSpace, name, fallback))
 				return true;
 
-			return Implements (type, nameSpace, name);
+			return Implements (type, nameSpace, name, fallback);
 		}
 
-		private static bool Implements (TypeDefinition type, string nameSpace, string iname)
+		private static bool Implements (TypeDefinition type, string nameSpace, string iname, TypeReference fallback)
 		{
 			while (type != null) {
 				// does the type implements it itself
 				if (type.HasInterfaces) {
-					foreach (TypeReference iface in type.Interfaces) {
-						if (iface.IsNamed (nameSpace, iname))
+					foreach (TypeReference iface in type.Interfaces.Select(t => t.InterfaceType)) {
+						if (iface.IsNamed (nameSpace, iname, fallback))
 							return true;
 						//if not, then maybe one of its parent interfaces does
-						if (Implements (iface.Resolve (), nameSpace, iname))
+						if (Implements (iface.Resolve (), nameSpace, iname, fallback))
 							return true;
 					}
 				}
@@ -285,7 +286,7 @@ namespace Gendarme.Framework.Rocks {
 
 		/// <summary>
 		/// Recursively check if the type implemented a specified interface. Note that it is possible
-		/// that we might now be able to know everything that a type implements since the assembly
+		/// that we might now be able to know everything that a type implements since the assembly 
 		/// where the information resides could be unavailable. False is returned in this case.
 		/// </summary>
 		/// <param name="self">The TypeDefinition on which the extension method can be called.</param>
@@ -317,7 +318,7 @@ namespace Gendarme.Framework.Rocks {
 			while (type != null) {
 				// does the type implements it itself
 				if (type.HasInterfaces) {
-					foreach (TypeReference iface in type.Interfaces) {
+					foreach (TypeReference iface in type.Interfaces.Select(t => t.InterfaceType)) {
 						if (iface.IsNamed (interfaceFullName))
 							return true;
 						//if not, then maybe one of its parent interfaces does
@@ -350,15 +351,15 @@ namespace Gendarme.Framework.Rocks {
 
 		/// <summary>
 		/// Check if the type inherits from the specified type. Note that it is possible that
-		/// we might not be able to know the complete inheritance chain since the assembly
+		/// we might not be able to know the complete inheritance chain since the assembly 
 		/// where the information resides could be unavailable.
 		/// </summary>
 		/// <param name="self">The TypeReference on which the extension method can be called.</param>
 		/// <param name="nameSpace">The namespace of the base class to be matched</param>
 		/// <param name="name">The name of the base class to be matched</param>
 		/// <returns>True if the type inherits from specified class, False otherwise</returns>
-		/// <remarks>This type only check class hierarchy. To get interface hierarchy use Inmplements extension.</remarks>
-		public static bool Inherits (this TypeReference self, string nameSpace, string name)
+        /// <remarks>This type only check class hierarchy. To get interface hierarchy use Inmplements extension.</remarks>
+		public static bool Inherits (this TypeReference self, string nameSpace, string name, TypeReference fallback)
 		{
 			if (nameSpace == null)
 				throw new ArgumentNullException ("nameSpace");
@@ -369,9 +370,9 @@ namespace Gendarme.Framework.Rocks {
 
 			TypeReference current = self.Resolve ();
 			while (current != null) {
-				if (current.IsNamed (nameSpace, name))
+				if (current.IsNamed (nameSpace, name, fallback))
 					return true;
-				if (current.IsNamed ("System", "Object"))
+				if (current.IsNamed ("System", "Object", null))
 					return false;
 
 				TypeDefinition td = current.Resolve ();
@@ -402,7 +403,7 @@ namespace Gendarme.Framework.Rocks {
 			while (current != null) {
 				if (current.IsNamed (fullName))
 					return true;
-				if (current.IsNamed ("System", "Object"))
+				if (current.IsNamed ("System", "Object", null))
 					return false;
 
 				TypeDefinition td = current.Resolve ();
@@ -421,7 +422,7 @@ namespace Gendarme.Framework.Rocks {
 		/// <param name="nameSpace">The namespace to be matched</param>
 		/// <param name="name">The type name to be matched</param>
 		/// <returns>True if the type is namespace and name match the arguments, False otherwise</returns>
-		public static bool IsNamed (this TypeReference self, string nameSpace, string name)
+		public static bool IsNamed (this TypeReference self, string nameSpace, string name, TypeReference fallback)
 		{
 			if (nameSpace == null)
 				throw new ArgumentNullException ("nameSpace");
@@ -431,9 +432,8 @@ namespace Gendarme.Framework.Rocks {
 				return false;
 
 			if (self.IsNested) {
-				int spos = name.LastIndexOf ('/');
-				if (spos == -1)
-					return false;
+                if (String.IsNullOrEmpty(nameSpace) && fallback != null && fallback.IsNested)
+                    return (fallback.GetFullName() == self.GetFullName());
 				return IsNamed (self, nameSpace + "." + name);
 			}
 
@@ -504,18 +504,18 @@ namespace Gendarme.Framework.Rocks {
 
 		/// <summary>
 		/// Checks if type is attribute. Note that it is possible that
-		/// we might now be able to know all inheritance since the assembly where
+		/// we might now be able to know all inheritance since the assembly where 
 		/// the information resides could be unavailable.
 		/// </summary>
 		/// <param name="self">The TypeReference on which the extension method can be called.</param>
-		/// <returns>True if the type inherits from <c>System.Attribute</c>,
+		/// <returns>True if the type inherits from <c>System.Attribute</c>, 
 		/// False otherwise.</returns>
 		public static bool IsAttribute (this TypeReference self)
 		{
 			if (self == null)
 				return false;
 
-			return self.Inherits ("System", "Attribute");
+			return self.Inherits ("System", "Attribute", null);
 		}
 
 		/// <summary>
@@ -554,7 +554,7 @@ namespace Gendarme.Framework.Rocks {
 			if ((type == null) || !type.IsEnum || !type.HasCustomAttributes)
 				return false;
 
-			return type.HasAttribute ("System", "FlagsAttribute");
+			return type.HasAttribute ("System", "FlagsAttribute", null);
 		}
 
 		/// <summary>
@@ -578,7 +578,7 @@ namespace Gendarme.Framework.Rocks {
 		/// Check if the type is generated code, either by the compiler or by a tool.
 		/// </summary>
 		/// <param name="self">The TypeReference on which the extension method can be called.</param>
-		/// <returns>True if the code is not generated directly by the developer,
+		/// <returns>True if the code is not generated directly by the developer, 
 		/// False otherwise (e.g. compiler or tool generated)</returns>
 		public static bool IsGeneratedCode (this TypeReference self)
 		{
@@ -621,7 +621,7 @@ namespace Gendarme.Framework.Rocks {
 				string name = self.Name;
 				return ((name == "IntPtr") || (name == "UIntPtr"));
 			}
-			return self.IsNamed ("System.Runtime.InteropServices", "HandleRef");
+			return self.IsNamed ("System.Runtime.InteropServices", "HandleRef", null);
 		}
 
 		/// <summary>

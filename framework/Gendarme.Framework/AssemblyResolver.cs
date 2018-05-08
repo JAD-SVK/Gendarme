@@ -89,7 +89,7 @@ namespace Gendarme.Framework {
 				throw new ArgumentNullException ("assembly");
 
 			assemblies.Add (assembly.Name.Name, assembly);
-			string location = Path.GetDirectoryName (assembly.MainModule.FullyQualifiedName);
+			string location = Path.GetDirectoryName (assembly.MainModule.FileName);
 			AddSearchDirectory (location);
 		}
 

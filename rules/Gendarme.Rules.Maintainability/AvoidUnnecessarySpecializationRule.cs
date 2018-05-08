@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Linq;
 using System.Text;
 
 using Mono.Cecil;
@@ -40,7 +41,7 @@ namespace Gendarme.Rules.Maintainability {
 
 	/// <summary>
 	/// This rule checks methods for over specialized parameters - i.e. parameter types
-	/// that are unnecessarily specialized with respect to what the method needs to
+	/// that are unnecessarily specialized with respect to what the method needs to 
 	/// perform its job. This often impairs the reusability of the method. If a problem
 	/// is found the rule will suggest the most general type, or interface, required for the
 	/// method to work.
@@ -54,10 +55,10 @@ namespace Gendarme.Rules.Maintainability {
 	/// 		return o.GetHashCode ();
 	/// 	}
 	/// }
-	///
+	/// 
 	/// public int Bad (DefaultEqualityComparer ec, object o)
 	/// {
-	/// 	return ec.GetHashCode (o);
+	///	return ec.GetHashCode (o);
 	/// }
 	/// </code>
 	/// </example>
@@ -70,10 +71,10 @@ namespace Gendarme.Rules.Maintainability {
 	/// 		return o.GetHashCode ();
 	/// 	}
 	/// }
-	///
+	/// 
 	/// public int Good (IEqualityComparer ec, object o)
 	/// {
-	/// 	return ec.GetHashCode (o);
+	///	return ec.GetHashCode (o);
 	/// }
 	/// </code>
 	/// </example>
@@ -187,14 +188,14 @@ namespace Gendarme.Rules.Maintainability {
 		{
 			TypeDefinition ifaceDef = null;
 
-			foreach (TypeReference iface in type.Interfaces) {
+			foreach (TypeReference iface in type.Interfaces.Select(t => t.InterfaceType)) {
 				// ignore non-cls-compliant interfaces
 				if (iface.Name.StartsWith ("_", StringComparison.Ordinal))
 					continue;
 
 				TypeDefinition candidate = iface.Resolve ();
 				if ((candidate == null) || !candidate.IsVisible ())
-					continue;
+					continue; 
 
 				if (!DoesAllSignaturesMatchType (candidate, signatures))
 					continue;
@@ -277,8 +278,8 @@ namespace Gendarme.Rules.Maintainability {
 
 			//HACK: BOO:
 			case "EqualityOperator" :
-				return (method.HasParameters && (method.Parameters.Count == 2) &&
-					(method.DeclaringType.IsNamed ("Boo.Lang.Runtime", "RuntimeServices")));
+				return (method.HasParameters && (method.Parameters.Count == 2) && 
+					(method.DeclaringType.IsNamed ("Boo.Lang.Runtime", "RuntimeServices", null)));
 			}
 			return false;
 		}
@@ -290,7 +291,7 @@ namespace Gendarme.Rules.Maintainability {
 
 		private static bool IsIgnoredSuggestionType (TypeReference type)
 		{
-			return (type.IsNamed ("System", "Object") || IsFromNonGenericCollectionNamespace (type.Namespace));
+			return (type.IsNamed ("System", "Object", null) || IsFromNonGenericCollectionNamespace (type.Namespace));
 		}
 
 		private static List<MethodSignature> GetSignatures (IEnumerable<StackEntryUsageResult> usageResults)
@@ -462,7 +463,7 @@ namespace Gendarme.Rules.Maintainability {
 
 		static bool IsSignatureDictatedByInterface (IMemberDefinition method, MethodSignature sig)
 		{
-			foreach (TypeReference intf_ref in method.DeclaringType.Interfaces) {
+			foreach (TypeReference intf_ref in method.DeclaringType.Interfaces.Select(t => t.InterfaceType)) {
 				TypeDefinition intr = intf_ref.Resolve ();
 				if (intr == null)
 					continue;

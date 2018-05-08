@@ -13,10 +13,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -87,7 +87,7 @@ namespace Gendarme.Rules.Globalization {
 				if (pd.IsParams ())
 					return true;
 				TypeReference ptype = pd.ParameterType;
-				if (!pmethod [i].ParameterType.IsNamed (ptype.FullName))
+				if (!pmethod [i].ParameterType.IsNamed (ptype.Namespace, ptype.Name, ptype))
 					return false;
 			}
 			return (ccount - count <= 1);
@@ -125,8 +125,8 @@ namespace Gendarme.Rules.Globalization {
 
 				// compare parameters and return value
 				TypeReference rtype = md.ReturnType;
-#warning TODO: test on 'out' and 'ref' nested types
-				if ((!method.ReturnType.IsNamed (rtype.Namespace, rtype.Name)) && (!method.ReturnType.IsNamed (rtype.FullName)))
+				#warning TODO: test on 'out' and 'ref' nested types
+				if (!method.ReturnType.IsNamed (rtype.Namespace, rtype.Name, rtype))
 					continue;
 
 				// last parameter could be our "prefered" type

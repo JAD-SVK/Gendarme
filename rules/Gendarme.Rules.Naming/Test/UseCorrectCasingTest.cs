@@ -119,10 +119,12 @@ namespace Test.Rules.Naming {
 	}
 
 	public class PrivateEventCasing {
-		private event EventHandler good_private_event;
-	}
+#pragma warning disable 67
+        private event EventHandler good_private_event;
+#pragma warning restore 67
+    }
 
-	[TestFixture]
+    [TestFixture]
 	public class UseCorrectCasingTest : MethodRuleTestFixture<UseCorrectCasingRule> {
 
 		[Test]

@@ -102,7 +102,7 @@ namespace Test.Rules.Naming {
 		[Test]
 		public void Min ()
 		{
-			Assert.Throws<ArgumentOutOfRangeException>(delegate { Rule.MaxDepth = Int32.MinValue; });
+			Assert.Throws<ArgumentOutOfRangeException>(() => Rule.MaxDepth = Int32.MinValue);
 		}
 
 		[Test]

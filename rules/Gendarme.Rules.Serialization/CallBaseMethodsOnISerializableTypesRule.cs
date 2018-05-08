@@ -47,22 +47,22 @@ namespace Gendarme.Rules.Serialization {
 	/// <code>
 	/// [Serializable]
 	/// public class Base : ISerializable {
-	/// 	// ...
+	///	// ...
 	/// }
-	///
+	/// 
 	/// [Serializable]
 	/// public class Bad : Base {
-	/// 	int value;
-	///
-	/// 	protected BadDerived (SerializationInfo info, StreamingContext context)
-	/// 	{
-	/// 		value = info.GetInt32 ("value");
-	/// 	}
-	///
-	/// 	public override void GetObjectData (SerializationInfo info, StreamingContext context)
-	/// 	{
-	/// 		info.AddValue ("value", value);
-	/// 	}
+	///	int value;
+	///	
+	///	protected BadDerived (SerializationInfo info, StreamingContext context)
+	///	{
+	///		value = info.GetInt32 ("value");
+	///	}
+	///	
+	///	public override void GetObjectData (SerializationInfo info, StreamingContext context)
+	///	{
+	///		info.AddValue ("value", value);
+	///	}
 	/// }
 	/// </code>
 	/// </example>
@@ -71,23 +71,23 @@ namespace Gendarme.Rules.Serialization {
 	/// <code>
 	/// [Serializable]
 	/// public class Base : ISerializable {
-	/// 	// ...
+	///	// ...
 	/// }
-	///
+	/// 
 	/// [Serializable]
 	/// public class Good : Base {
-	/// 	int value;
-	///
-	/// 	protected BadDerived (SerializationInfo info, StreamingContext context) : base (info, context)
-	/// 	{
-	/// 		value = info.GetInt32 ("value");
-	/// 	}
-	///
-	/// 	public override void GetObjectData (SerializationInfo info, StreamingContext context)
-	/// 	{
-	/// 		info.AddValue ("value", value);
-	/// 		base.GetObjectData (info, context);
-	/// 	}
+	///	int value;
+	///	
+	///	protected BadDerived (SerializationInfo info, StreamingContext context) : base (info, context)
+	///	{
+	///		value = info.GetInt32 ("value");
+	///	}
+	///	
+	///	public override void GetObjectData (SerializationInfo info, StreamingContext context)
+	///	{
+	///		info.AddValue ("value", value);
+	///		base.GetObjectData (info, context);
+	///	}
 	/// }
 	/// </code>
 	/// </example>
@@ -102,9 +102,9 @@ namespace Gendarme.Rules.Serialization {
 		private static bool InheritsFromISerializableImplementation (TypeDefinition type)
 		{
 			TypeDefinition current = type.BaseType != null ? type.BaseType.Resolve () : null;
-			if (current == null || current.IsNamed ("System", "Object"))
+			if (current == null || current.IsNamed ("System", "Object", null))
 				return false;
-			if (current.IsSerializable && current.Implements ("System.Runtime.Serialization", "ISerializable"))
+			if (current.IsSerializable && current.Implements ("System.Runtime.Serialization", "ISerializable", null))
 				return true;
 
 			return InheritsFromISerializableImplementation (current);
@@ -125,7 +125,7 @@ namespace Gendarme.Rules.Serialization {
 
 					MethodReference operand = (MethodReference) instruction.Operand;
 					TypeReference tr = operand.DeclaringType;
-					if (methodSignature.Matches (operand) && type.Inherits (tr.FullName))
+					if (methodSignature.Matches (operand) && type.Inherits (tr.Namespace, tr.Name, tr))
 						return;
 				}
 			}

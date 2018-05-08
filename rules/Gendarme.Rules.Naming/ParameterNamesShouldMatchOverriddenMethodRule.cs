@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 using Mono.Cecil;
 using Gendarme.Framework;
@@ -145,7 +146,7 @@ namespace Gendarme.Rules.Naming {
 			//check if this is a Boo assembly using macros
 			Runner.AnalyzeModule += delegate (object o, RunnerEventArgs e) {
 				IsBooAssemblyUsingMacro = (e.CurrentModule.AnyTypeReference ((TypeReference tr) => {
-					return tr.IsNamed ("Boo.Lang.Compiler.Ast", "MacroStatement");
+					return tr.IsNamed ("Boo.Lang.Compiler.Ast", "MacroStatement", null);
 				}));
 			};
 		}
@@ -213,7 +214,7 @@ namespace Gendarme.Rules.Naming {
 			if (!type.HasInterfaces)
 				return;
 
-			foreach (TypeReference interfaceReference in type.Interfaces) {
+			foreach (TypeReference interfaceReference in type.Interfaces.Select(t => t.InterfaceType)) {
 				TypeDefinition interfaceCandidate = interfaceReference.Resolve ();
 				if ((interfaceCandidate != null) && interfaceCandidate.HasMethods)
 					SelectMethodCandidates (method, interfaceCandidate.Methods);
@@ -226,8 +227,8 @@ namespace Gendarme.Rules.Naming {
 			if (!type.HasInterfaces)
 				return;
 
-			foreach (TypeReference interfaceReference in type.Interfaces) {
-				TypeDefinition interfaceCandidate = interfaceReference.Resolve ();
+			foreach (TypeReference interfaceReference in type.Interfaces.Select(t => t.InterfaceType)) { 
+                TypeDefinition interfaceCandidate = interfaceReference.Resolve ();
 				if ((interfaceCandidate != null) && interfaceCandidate.HasMethods) {
 					string fullName = interfaceCandidate.FullName;
 					int pos = fullName.IndexOf ('`');
@@ -321,7 +322,7 @@ namespace Gendarme.Rules.Naming {
 
 		private static bool IsBooMacroParameter (ParameterReference p)
 		{
-			return p.Name == "macro" && p.ParameterType.IsNamed ("Boo.Lang.Compiler.Ast", "MacroStatement");
+			return p.Name == "macro" && p.ParameterType.IsNamed ("Boo.Lang.Compiler.Ast", "MacroStatement", null);
 		}
 	}
 }

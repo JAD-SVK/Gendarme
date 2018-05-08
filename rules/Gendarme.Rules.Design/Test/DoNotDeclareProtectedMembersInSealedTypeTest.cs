@@ -52,6 +52,7 @@ namespace Test.Rules.Design {
 			AssertRuleDoesNotApply (SimpleTypes.Structure);
 		}
 
+#pragma warning disable 628
 		public sealed class SealedClassWithProtectedField {
 			protected int i;
 			protected double d;
@@ -63,11 +64,13 @@ namespace Test.Rules.Design {
 			AssertRuleFailure<SealedClassWithProtectedField> (2);
 		}
 
+#pragma warning disable 169
 		public sealed class SealedClassWithoutProtectedFields {
 			public string s;
 			private float f;
 		}
-
+#pragma warning restore 169
+		
 		[Test]
 		public void SealedClassWithoutProtectedFieldsTest ()
 		{
@@ -80,6 +83,7 @@ namespace Test.Rules.Design {
 				return 42;
 			}
 		}
+#pragma warning restore 628
 
 		[Test]
 		public void SealedClassWithProtectedMethodTest ()

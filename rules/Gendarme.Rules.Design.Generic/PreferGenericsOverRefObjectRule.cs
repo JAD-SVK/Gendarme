@@ -48,7 +48,7 @@ namespace Gendarme.Rules.Design.Generic {
 	/// // common before 2.0 but we can do better now
 	/// public bool TryGetValue (string key, ref object value)
 	/// {
-	/// 	// ...
+	///	// ...
 	/// }
 	/// </code>
 	/// </example>
@@ -57,7 +57,7 @@ namespace Gendarme.Rules.Design.Generic {
 	/// <code>
 	/// public bool TryGetValue&lt;T&gt; (string key, ref T value)
 	/// {
-	/// 	// ...
+	///	// ...
 	/// }
 	/// </code>
 	/// </example>
@@ -75,13 +75,18 @@ namespace Gendarme.Rules.Design.Generic {
 		public RuleResult CheckMethod (MethodDefinition method)
 		{
 			// rule does not apply to properties, events, without parameters or for generated code
-			if (method.IsSpecialName || !method.HasParameters || method.IsGeneratedMethodOrType ())
+			if (method.IsSpecialName || !method.HasParameters || method.IsGeneratedMethodBody ())
+				return RuleResult.DoesNotApply;
+
+			// exclude the "bool Try* (ref)" pattern from the rule
+			if (method.Name.StartsWith ("Try", StringComparison.Ordinal) && method.ReturnType.IsNamed ("System", "Boolean", null))
 				return RuleResult.DoesNotApply;
 
 			foreach (ParameterDefinition parameter in method.Parameters) {
+				// suggest using generics
 				TypeReference tr = parameter.ParameterType;
-				if (tr.IsByReference && tr.IsNamed ("System", "Object&"))
-					Runner.Report (parameter, Severity.Medium, Confidence.High);
+				if (tr.IsByReference && tr.IsNamed ("System", "Object&", null))
+				Runner.Report (parameter, Severity.Medium, Confidence.High);
 			}
 			return Runner.CurrentRuleResult;
 		}

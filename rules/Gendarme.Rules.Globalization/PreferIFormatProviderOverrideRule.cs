@@ -93,7 +93,7 @@ namespace Gendarme.Rules.Globalization {
 		/// <returns>true for prefered type; otherwise, false</returns>
 		protected override bool IsPrefered (TypeReference type)
 		{
-			return (type.IsNamed ("System", "IFormatProvider") || type.IsNamed ("System.Globalization", "CultureInfo"));
+			return (type.IsNamed ("System", "IFormatProvider", null) || type.IsNamed ("System.Globalization", "CultureInfo", null));
 		}
 
 		/// <summary>
@@ -103,11 +103,11 @@ namespace Gendarme.Rules.Globalization {
 		/// <returns>true for special case method; otherwise, false</returns>
 		protected override bool IsSpecialCase (MethodReference method)
 		{
-			if ((method == null) || method.IsNamed ("System", "Activator", "CreateInstance"))
+			if ((method == null) || method.IsNamed ("System", "Activator", "CreateInstance", null))
 				return true;
 
 			TypeReference type = method.DeclaringType;
-			if (!type.IsNamed ("System.Resources", "ResourceManager"))
+			if (!type.IsNamed ("System.Resources", "ResourceManager", null))
 				return false;
 
 			string name = method.Name;

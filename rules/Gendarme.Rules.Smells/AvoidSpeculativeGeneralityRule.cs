@@ -48,22 +48,22 @@ namespace Gendarme.Rules.Smells {
 	//
 	// The "Be carefull if you are developing a new framework" sentence in the summary
 	// is very confusing.
-
+	
 	/// <summary>
 	/// <para>
-	/// This rule allows developers to avoid the Speculative Generality smell.
-	/// Be careful if you are developing a new framework or a new library,
-	/// because this rule only inspects the assembly, then if you provide an
+	/// This rule allows developers to avoid the Speculative Generality smell. 
+	/// Be careful if you are developing a new framework or a new library, 
+	/// because this rule only inspects the assembly, then if you provide an 
 	/// abstract base class for extend by third party people, then the rule
 	/// can warn you. You can ignore the message in this special case.
 	/// </para>
 	/// <para>
 	/// We detect this smell by looking for:
 	/// <list type="bullet">
-	/// <item><description>Abstract classes without responsibility</description></item>
-	/// <item><description>Unnecessary delegation.</description></item>
+    	/// <item><description>Abstract classes without responsibility</description></item>
+    	/// <item><description>Unnecessary delegation.</description></item>
 	/// <item><description>Unused parameters.</description></item>
-	/// </list>
+    	/// </list>
 	/// </para>
 	/// </summary>
 	/// <example>
@@ -73,21 +73,21 @@ namespace Gendarme.Rules.Smells {
 	/// public abstract class AbstractClass {
 	/// 	public abstract void MakeStuff ();
 	/// }
-	///
+	/// 
 	/// public class OverriderClass : AbstractClass {
 	/// 	public override void MakeStuff ()
-	/// 	{
-	/// 	}
+	///	{
+	///	}
 	/// }
 	/// </code>
-	/// If you use Telephone class only in one client, perhaps you don't need this kind of delegation.
+	/// If you use Telephone class only in one client, perhaps you don't need this kind of delegation. 
 	/// <code>
 	/// public class Person {
-	/// 	int age;
+	///	int age;
 	/// 	string name;
-	/// 	Telephone phone;
+	///	Telephone phone;
 	/// }
-	///
+ 	///
 	/// public class Telephone {
 	/// 	int areaCode;
 	/// 	int phone;
@@ -98,15 +98,15 @@ namespace Gendarme.Rules.Smells {
 	/// Good example:
 	/// <code>
 	/// public abstract class OtherAbstractClass{
-	/// 	public abstract void MakeStuff ();
+	///	public abstract void MakeStuff ();
 	/// }
-	///
+	/// 
 	/// public class OtherOverriderClass : OtherAbstractClass {
 	/// 	public override void MakeStuff ()
 	/// 	{
 	/// 	}
 	/// }
-	///
+	/// 
 	/// public class YetAnotherOverriderClass : OtherAbstractClass {
 	/// 	public override void MakeStuff ()
 	/// 	{
@@ -127,7 +127,7 @@ namespace Gendarme.Rules.Smells {
 				foreach (ModuleDefinition module in assembly.Modules) {
 					foreach (TypeDefinition type in module.GetAllTypes ()) {
 						if ((baseType == type.BaseType) || (type.BaseType != null &&
-							type.BaseType.IsNamed (baseType.FullName))) {
+							type.BaseType.IsNamed (baseType.Namespace, baseType.Name, baseType))) {
 							if (++count > expected)
 								return false;
 						}
@@ -170,7 +170,7 @@ namespace Gendarme.Rules.Smells {
 
 		private static bool InheritsOnlyFromObject (TypeDefinition type)
 		{
-			return !type.HasInterfaces && type.BaseType.IsNamed ("System", "Object");
+			return !type.HasInterfaces && type.BaseType.IsNamed ("System", "Object", null);
 		}
 
 		private static bool MostlyMethodsDelegatesCall (TypeDefinition type)

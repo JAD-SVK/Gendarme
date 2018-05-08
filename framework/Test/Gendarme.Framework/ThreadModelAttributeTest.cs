@@ -99,7 +99,8 @@ namespace Test.Framework {
 		[Test]
 		public void Invalid ()
 		{
-			Assert.Throws<ArgumentException>(delegate { new ThreadModelAttribute((ThreadModel)Int32.MinValue); });
+            Assert.Throws<ArgumentException>(() => 
+            new ThreadModelAttribute ((ThreadModel) Int32.MinValue));
 		}
 	}
 }

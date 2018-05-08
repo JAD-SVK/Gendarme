@@ -15,10 +15,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -46,16 +46,17 @@ namespace Test.Rules.Maintainability {
 
 		private sealed class Good1 {
 			private string name = "hey";	// initialized
-
+			
 			public void Write ()
 			{
 				Console.WriteLine (name);
 			}
 		}
 
+#pragma warning disable 649,169
 		private class Good2 {
 			protected string name;	// not private
-
+			
 			public void Write ()
 			{
 				if (name != null)
@@ -65,7 +66,7 @@ namespace Test.Rules.Maintainability {
 
 		private sealed class Good3 {
 			private string name;	// not used (AvoidUnusedPrivateField will handle this case)
-
+			
 			public void Write ()
 			{
 				Console.WriteLine ("hey");
@@ -74,7 +75,7 @@ namespace Test.Rules.Maintainability {
 
 		private sealed class Good4 {
 			private IntPtr zero;	// not a reference type
-
+			
 			public void Write ()
 			{
 				Console.WriteLine (zero);
@@ -83,7 +84,7 @@ namespace Test.Rules.Maintainability {
 
 		private sealed class Good5 {
 			private static string name = "hey";	// initialized
-
+			
 			public void Write ()
 			{
 				Console.WriteLine (name);
@@ -92,17 +93,17 @@ namespace Test.Rules.Maintainability {
 
 		private sealed class Good6 {
 			private string name;
-
+			
 			public Good6 ()
 			{
 				IndirectSet (ref name);	// address taken
 			}
-
+			
 			public void Write ()
 			{
 				Console.WriteLine (name);
 			}
-
+			
 			public void IndirectSet (ref string n)
 			{
 				n = "hey";
@@ -110,8 +111,8 @@ namespace Test.Rules.Maintainability {
 		}
 
 		private class Bad1 {
-			private string name;
-
+			private string name;	
+			
 			public void Write ()
 			{
 				if (name != null)
@@ -120,13 +121,13 @@ namespace Test.Rules.Maintainability {
 		}
 
 		private class Bad2 {
-			private string name;
-
+			private string name;	
+			
 			public Bad2 ()
 			{
 				name = null;
 			}
-
+			
 			public void Write ()
 			{
 				if (name != null)
@@ -135,13 +136,13 @@ namespace Test.Rules.Maintainability {
 		}
 
 		private class Bad3 {
-			private static string name;
-
+			private static string name;	
+			
 			public Bad3 ()
 			{
 				name = null;
 			}
-
+			
 			public void Write ()
 			{
 				if (name != null)
@@ -150,15 +151,17 @@ namespace Test.Rules.Maintainability {
 		}
 
 		private class Bad4 {
-			private string name1;
-			private string name2;
-
+#pragma warning disable 414
+			private string name1;	
+#pragma warning restore 414
+			private string name2;	
+			
 			public Bad4 ()
 			{
 				name1 = null;	// explictly set to null, but not used
 				name2 = "hey";
 			}
-
+			
 			public void Write ()
 			{
 				Console.WriteLine (name2);
@@ -172,7 +175,7 @@ namespace Test.Rules.Maintainability {
 			{
 				name = flag ? "hmm" : null;	// we don't handle this properly
 			}
-
+			
 			public void Write ()
 			{
 				if (name != null)
@@ -192,12 +195,12 @@ namespace Test.Rules.Maintainability {
 		[Test]
 		public void Cases ()
 		{
-			AssertRuleSuccess<Good1> ();
-			AssertRuleSuccess<Good2> ();
-			AssertRuleSuccess<Good3> ();
-			AssertRuleSuccess<Good4> ();
-			AssertRuleSuccess<Good5> ();
-			AssertRuleSuccess<Good6> ();
+			AssertRuleSuccess<Good1> ();	
+			AssertRuleSuccess<Good2> ();	
+			AssertRuleSuccess<Good3> ();	
+			AssertRuleSuccess<Good4> ();	
+			AssertRuleSuccess<Good5> ();	
+			AssertRuleSuccess<Good6> ();	
 
 			AssertRuleFailure<Bad1> (1);
 			AssertRuleFailure<Bad2> (1);
@@ -241,7 +244,7 @@ namespace Test.Rules.Maintainability {
 			void Parse ()
 			{
 				ThreadPool.QueueUserWorkItem (delegate {
-					file = "";
+					file = ""; 
 				});
 			}
 

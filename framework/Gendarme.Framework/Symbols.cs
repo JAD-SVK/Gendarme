@@ -41,16 +41,16 @@ namespace Gendarme.Framework {
 
 		private const string AlmostEqualTo = "\u2248";
 
-		private static Instruction ExtractFirst (TypeDefinition type)
+		private static (MethodDefinition, Instruction) ExtractFirst (TypeDefinition type)
 		{
 			if (type == null)
-				return null;
+				return (null, null);
 			foreach (MethodDefinition method in type.Methods) {
 				Instruction ins = ExtractFirst (method);
 				if (ins != null)
-					return ins;
+					return (method, ins);
 			}
-			return null;
+			return (null, null);
 		}
 
 		private static Instruction ExtractFirst (MethodDefinition method)
@@ -58,11 +58,16 @@ namespace Gendarme.Framework {
 			if ((method == null) || !method.HasBody || method.Body.Instructions.Count == 0)
 				return null;
 			Instruction ins = method.Body.Instructions [0];
+            var information = method.DebugInformation;
+            if (information == null || !information.HasSequencePoints)
+            {
+                return null;
+            }
 			// note that the first instruction often does not have a sequence point
-			while (ins != null && ins.SequencePoint == null)
+			while (ins != null && information.GetSequencePoint(ins) == null)
 				ins = ins.Next;
-
-			return (ins != null && ins.SequencePoint != null) ? ins : null;
+				
+			return (ins != null && information.GetSequencePoint(ins) != null) ? ins : null;
 		}
 
 		private static TypeDefinition FindTypeFromLocation (IMetadataTokenProvider location)
@@ -121,7 +126,7 @@ namespace Gendarme.Framework {
 		{
 			return FormatSequencePoint (sp.Document.Url, sp.StartLine, sp.StartColumn, exact);
 		}
-
+		
 		// It would probably be a good idea to move this formatting into
 		// the reporting layer. The XML formatter would ideally not do
 		// any formatting at all so that tools could extract the line
@@ -129,7 +134,7 @@ namespace Gendarme.Framework {
 		//
 		// We might also want to allow some sort of customization of the
 		// formatting used by the text reporter. For example, most editors
-		// on the Mac have direct support for paths like foo/bar.cs:10
+		// on the Mac have direct support for paths like foo/bar.cs:10 
 		// which include line numbers and foo/bar.cs:10:5 for paths which
 		// include line and column.
 		private static string FormatSequencePoint (string document, int line, int column, bool exact)
@@ -145,17 +150,18 @@ namespace Gendarme.Framework {
 				exact ? String.Empty : AlmostEqualTo);
 		}
 
-		private static string GetSource (Instruction ins)
+		private static string GetSource (Instruction ins, MethodDebugInformation information)
 		{
 			// try to find the closed sequence point for this instruction
 			Instruction search = ins;
 			bool feefee = false;
 			while (search != null) {
+                var sp = information.GetSequencePoint(search);
 				// find the first entry, going backward, with a SequencePoint
-				if (search.SequencePoint != null) {
+				if (sp != null) {
 					// skip entries that are hidden (0xFEEFEE)
-					if (search.SequencePoint.StartLine != PdbHiddenLine)
-						return FormatSequencePoint (search.SequencePoint, feefee);
+					if (sp.StartLine != PdbHiddenLine)
+						return FormatSequencePoint (sp, feefee);
 					// but from here on we're not 100% sure about line numbers
 					feefee = true;
 				}
@@ -165,15 +171,16 @@ namespace Gendarme.Framework {
 			// no details, we only have the IL offset to report
 			return String.Format (CultureInfo.InvariantCulture, "debugging symbols unavailable, IL offset 0x{0:x4}", ins.Offset);
 		}
-
-		static private string FormatSource (Instruction candidate)
+		
+		static private string FormatSource (Instruction candidate, MethodDebugInformation information)
 		{
-			int line = candidate.SequencePoint.StartLine;
+            var sp = information.GetSequencePoint(candidate);
+			int line = sp.StartLine;
 			// we approximate (line - 1, no column) to get (closer) to the definition
 			// unless we have the special 0xFEEFEE value (used in PDB for hidden source code)
 			if (line != PdbHiddenLine)
 				line--;
-			return FormatSequencePoint (candidate.SequencePoint.Document.Url, line, 0, false);
+			return FormatSequencePoint (sp.Document.Url, line, 0, false);
 		}
 
 		static public string GetSource (Defect defect)
@@ -181,8 +188,10 @@ namespace Gendarme.Framework {
 			if (defect == null)
 				return String.Empty;
 
+            MethodDefinition method = FindMethodFromLocation(defect.Location);
+
 			if (defect.Instruction != null)
-				return GetSource (defect.Instruction);
+				return GetSource (defect.Instruction, method.DebugInformation);
 
 			// rule didn't provide an Instruction but we do our best to
 			// find something since this is our only link to the source code
@@ -192,11 +201,10 @@ namespace Gendarme.Framework {
 
 			// MethodDefinition, ParameterDefinition
 			//	return the method source file with (approximate) line number
-			MethodDefinition method = FindMethodFromLocation (defect.Location);
 			if (method != null) {
 				candidate = ExtractFirst (method);
-				if (candidate != null)
-					return FormatSource (candidate);
+				if (candidate != null) 
+					return FormatSource (candidate, method.DebugInformation);
 
 				// we may still be lucky to find the (a) source file for the type itself
 				type = method.DeclaringType;
@@ -206,9 +214,9 @@ namespace Gendarme.Framework {
 			//	return the type source file (based on the first ctor)
 			if (type == null)
 				type = FindTypeFromLocation (defect.Location);
-			candidate = ExtractFirst (type);
-			if (candidate != null)
-				return FormatSource (candidate);
+			var (m, c) = ExtractFirst (type);
+			if (c != null)
+				return FormatSource (c, m.DebugInformation);
 
 			return String.Empty;
 		}

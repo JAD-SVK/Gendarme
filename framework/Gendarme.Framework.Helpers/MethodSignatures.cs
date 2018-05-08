@@ -90,12 +90,12 @@ namespace Gendarme.Framework.Helpers {
 
 		public static readonly MethodSignature op_Increment = new MethodSignature ("op_Increment", (method) => IsOperator (method, 1));				// 5++
 		public static readonly MethodSignature op_Decrement = new MethodSignature ("op_Decrement", (method) => IsOperator (method, 1));				// 5--
-		public static readonly MethodSignature op_True = new MethodSignature ("op_True", "System.Boolean", (method) => IsOperator (method, 1));			// if (object)
+		public static readonly MethodSignature op_True = new MethodSignature ("op_True", "System.Boolean", (method) => IsOperator (method, 1));			// if (object)		
 		public static readonly MethodSignature op_False = new MethodSignature ("op_False", "System.Boolean", (method) => IsOperator (method, 1));		// if (object)
 
 		// binary
 		public static readonly MethodSignature op_Addition = new MethodSignature ("op_Addition", (method) => IsOperator (method, 2));				// 5 + 5
-		public static readonly MethodSignature op_Subtraction = new MethodSignature ("op_Subtraction", (method) => IsOperator (method, 2));			// 5 - 5
+		public static readonly MethodSignature op_Subtraction = new MethodSignature ("op_Subtraction", (method) => IsOperator (method, 2));			// 5 - 5 
 		public static readonly MethodSignature op_Multiply = new MethodSignature ("op_Multiply", (method) => IsOperator (method, 2));				// 5 * 5
 		public static readonly MethodSignature op_Division = new MethodSignature ("op_Division", (method) => IsOperator (method, 2));				// 5 / 5
 		public static readonly MethodSignature op_Modulus = new MethodSignature ("op_Modulus", (method) => IsOperator (method, 2));				// 5 % 5
@@ -121,11 +121,11 @@ namespace Gendarme.Framework.Helpers {
 		// TryParse
 		public static readonly MethodSignature TryParse = new MethodSignature ("TryParse",
 			delegate (MethodReference method) {
-				if (!method.ReturnType.IsNamed ("System", "Boolean"))
+				if (!method.ReturnType.IsNamed ("System", "Boolean", null))
 					return false;
 
 				IList<ParameterDefinition> pdc = method.Parameters;
-				if (!pdc [0].ParameterType.IsNamed ("System", "String"))
+				if (!pdc [0].ParameterType.IsNamed ("System", "String", null))
 					return false;
 
 				TypeReference last = pdc [pdc.Count - 1].ParameterType;
@@ -147,9 +147,9 @@ namespace Gendarme.Framework.Helpers {
 			delegate (MethodReference method) {
 				if (!method.HasParameters)
 					return false;
-				if (!method.ReturnType.IsNamed (method.DeclaringType.FullName))
+				if (!method.ReturnType.IsNamed (method.DeclaringType.Namespace, method.DeclaringType.Name, method.DeclaringType))
 					return false;
-				return method.Parameters [0].ParameterType.IsNamed ("System", "String");
+				return method.Parameters [0].ParameterType.IsNamed ("System", "String", null);
 			}
 		);
 	}

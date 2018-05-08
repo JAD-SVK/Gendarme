@@ -402,10 +402,13 @@ namespace Gendarme.Rules.Portability {
 				CheckIdentifier ((afterLdstr.Operand as FieldReference).Name);
 				break;
 			default:
-				if (afterLdstr.IsStoreLocal ())
-					CheckIdentifier (afterLdstr.GetVariable (method_body.Method).Name);
-				else
-					return false;
+                    if (afterLdstr.IsStoreLocal())
+                    {
+                        var method = method_body.Method;
+                        CheckIdentifier(afterLdstr.GetVariable(method).GetName(method.DebugInformation));
+                    }
+                    else
+                        return false;
 				break;
 			}
 
@@ -465,7 +468,7 @@ namespace Gendarme.Rules.Portability {
 				// this is a constructor call
 				MethodReference ctor = (MethodReference) ins.Operand;
 				// avoid catching regular expressions
-				if (ctor.DeclaringType.IsNamed ("System.Text.RegularExpressions", "Regex"))
+				if (ctor.DeclaringType.IsNamed ("System.Text.RegularExpressions", "Regex", null))
 					AddPoints (-42);
 
 				break;

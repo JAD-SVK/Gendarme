@@ -117,10 +117,10 @@ namespace Gendarme.Rules.Maintainability {
 			case Code.Ldloc_2:
 			case Code.Ldloc_3:
 				int vindex = ins.OpCode.Code - Code.Ldloc_0;
-				return method.Body.Variables [vindex].Name;
+				return method.Body.Variables [vindex].GetName(method.DebugInformation);
 			case Code.Ldloc:
 			case Code.Ldloc_S:
-				return (ins.Operand as VariableDefinition).Name;
+				return (ins.Operand as VariableDefinition).GetName(method.DebugInformation);
 			default:
 				object o = ins.Operand;
 				MemberReference mr = (o as MemberReference);
@@ -214,7 +214,7 @@ namespace Gendarme.Rules.Maintainability {
 					continue;
 
 				MethodReference mr = (current.Operand as MethodReference);
-				if (mr.IsNamed ("System", "String", "get_Length")) {
+				if (mr.IsNamed ("System", "String", "get_Length", null)) {
 					// now that we found it we check that
 					// 1 - we previously did a check null on the same value (that we already know is a string)
 					Instruction branch = PreLengthCheck (method, current.Previous);

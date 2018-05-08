@@ -181,19 +181,19 @@ namespace Test.Framework.Rocks {
 		[Test]
 		public void HasAttribute__NullParam ()
 		{
-			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).HasAttribute (null, "a"); }, "namespace");
-			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).HasAttribute ("a", null); }, "name");
+			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).HasAttribute (null, "a", null); }, "namespace");
+			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).HasAttribute ("a", null, null); }, "name");
 		}
 
 		[Test]
 		public void HasAttribute ()
 		{
-			Assert.IsTrue (GetType (String.Empty).HasAttribute ("NUnit.Framework", "TestFixtureAttribute"), "TypeRocksTest");
-			Assert.IsFalse (GetType ("/Enum").HasAttribute ("System", "FlagsAttribute"), "Enum/System.FlagsAttribute");
-			Assert.IsTrue (GetType ("/Flags").HasAttribute ("System", "FlagsAttribute"), "Flags/System.FlagsAttribute");
+			Assert.IsTrue (GetType (String.Empty).HasAttribute ("NUnit.Framework", "TestFixtureAttribute", null), "TypeRocksTest");
+			Assert.IsFalse (GetType ("/Enum").HasAttribute ("System", "FlagsAttribute", null), "Enum/System.FlagsAttribute");
+			Assert.IsTrue (GetType ("/Flags").HasAttribute ("System", "FlagsAttribute", null), "Flags/System.FlagsAttribute");
 			// fullname is required
-			Assert.IsFalse (GetType ("/Flags").HasAttribute ("System", "Flags"), "Flags/System.Flags");
-			Assert.IsFalse (GetType ("/Flags").HasAttribute ("", "FlagsAttribute"), "Flags/FlagsAttribute");
+			Assert.IsFalse (GetType ("/Flags").HasAttribute ("System", "Flags", null), "Flags/System.Flags");
+			Assert.IsFalse (GetType ("/Flags").HasAttribute ("", "FlagsAttribute", null), "Flags/FlagsAttribute");
 		}
 
 		[Test]
@@ -206,19 +206,19 @@ namespace Test.Framework.Rocks {
 		[Test]
 		public void Implements_NullParam ()
 		{
-			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).Implements (null, "a"); }, "namespace");
-			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).Implements ("a", null); }, "name");
+			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).Implements (null, "a", null); }, "namespace");
+			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).Implements ("a", null, null); }, "name");
 		}
 
 		[Test]
 		public void Implements ()
 		{
-			Assert.IsFalse (GetType (String.Empty).Implements ("System", "ICloneable"), "ICloneable");
-			Assert.IsTrue (GetType ("/IDeepCloneable").Implements (TestTypeNames.Namespace, "TypeRocksTest/IDeepCloneable"), "itself");
-			Assert.IsTrue (GetType ("/IDeepCloneable").Implements ("System", "ICloneable"), "interface inheritance");
-			Assert.IsTrue (GetType ("/Deep").Implements (TestTypeNames.Namespace, "TypeRocksTest/IDeepCloneable"), "IDeepCloneable");
-			Assert.IsTrue (GetType ("/Deep").Implements ("System", "ICloneable"), "second-level ICloneable");
-			Assert.IsTrue (GetType ("/Mixin").Implements (TestTypeNames.Namespace, "TypeRocksTest/IDeepCloneable"), "parent interface inheritance");
+			Assert.IsFalse (GetType (String.Empty).Implements ("System", "ICloneable", null), "ICloneable");
+			Assert.IsTrue (GetType ("/IDeepCloneable").Implements (TestTypeNames.Namespace, "TypeRocksTest/IDeepCloneable", null), "itself");
+			Assert.IsTrue (GetType ("/IDeepCloneable").Implements ("System", "ICloneable", null), "interface inheritance");
+			Assert.IsTrue (GetType ("/Deep").Implements (TestTypeNames.Namespace, "TypeRocksTest/IDeepCloneable", null), "IDeepCloneable");
+			Assert.IsTrue (GetType ("/Deep").Implements ("System", "ICloneable", null), "second-level ICloneable");
+			Assert.IsTrue (GetType ("/Mixin").Implements (TestTypeNames.Namespace, "TypeRocksTest/IDeepCloneable", null), "parent interface inheritance");
 		}
 
 		[Test]
@@ -226,24 +226,24 @@ namespace Test.Framework.Rocks {
 		{
 			FixtureSetUp();
 			TypeDefinition type = assembly.MainModule.GetType(TestTypeNames.NoStringEnumerator);
-			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerator"), "IEnumerator");
+			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerator", null), "IEnumerator");
 			Assert.IsTrue (type.Implements ("System.Collections.IEnumerator"), "IEnumerator (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1"), "IEnumerator`1");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1", null), "IEnumerator`1");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerator`1"), "IEnumerator`1 (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1<System.String>"), "IEnumerator`1<string>");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1<System.String>", null), "IEnumerator`1<string>");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerator`1<System.String>"), "IEnumerator`1<string> (full)");
 
 			// unknown behaviour, whether this should be recognized or not; for now it is recognized as valid
 			//Assert.IsFalse (type.Implements ("System.Collections.Generic", "IEnumerator`1<T>"), "IEnumerator`1<T>")
 			//Assert.IsFalse (type.Implements ("System.Collections.Generic.IEnumerator`1<T>"), "IEnumerator`1<T> (full)")
 
-			Assert.IsTrue (type.Implements ("System", "IDisposable"), "IDisposable");
+			Assert.IsTrue (type.Implements ("System", "IDisposable", null), "IDisposable");
 
-			Assert.IsFalse (type.Implements ("System.Collections.Generic", "ICollection`1"), "ICollection`1");
+			Assert.IsFalse (type.Implements ("System.Collections.Generic", "ICollection`1", null), "ICollection`1");
 			Assert.IsFalse (type.Implements ("System.Collections.Generic.ICollection`1"), "ICollection`1 (full)");
-			Assert.IsFalse (type.Implements ("System.Collections", "ICollection"), "ICollection");
+			Assert.IsFalse (type.Implements ("System.Collections", "ICollection", null), "ICollection");
 			Assert.IsFalse (type.Implements ("System.Collections.ICollection"), "ICollection (full)");
 		}
 
@@ -253,22 +253,22 @@ namespace Test.Framework.Rocks {
 			FixtureSetUp();
 			TypeDefinition type = assembly.MainModule.GetType(TestTypeNames.TwoGenericStringImplementations);
 
-			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerator"), "IEnumerator");
+			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerator", null), "IEnumerator");
 			Assert.IsTrue (type.Implements ("System.Collections.IEnumerator"), "IEnumerator (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1"), "IEnumerator`1");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1", null), "IEnumerator`1");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerator`1"), "IEnumerator`1 (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1<System.String>"), "IEnumerator`1<string>");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1<System.String>", null), "IEnumerator`1<string>");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerator`1<System.String>"), "IEnumerator`1<string> (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerable"), "IEnumerable");
+			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerable", null), "IEnumerable", null);
 			Assert.IsTrue (type.Implements ("System.Collections.IEnumerable"), "IEnumerable (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1"), "IEnumerable`1");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1", null), "IEnumerable`1");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerable`1"), "IEnumerable`1 (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1<System.String>"), "IEnumerable`1<string>");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1<System.String>", null), "IEnumerable`1<string>");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerable`1<System.String>"), "IEnumerable`1<string> (full)");
 
 #if false
@@ -277,11 +277,11 @@ namespace Test.Framework.Rocks {
 			//Assert.IsFalse (type.Implements ("System.Collections.Generic.IEnumerable`1<T>"), "IEnumerable`1<T> (full)");
 #endif // false
 
-			Assert.IsTrue (type.Implements ("System", "IDisposable"), "IDisposable");
+			Assert.IsTrue (type.Implements ("System", "IDisposable", null), "IDisposable");
 
-			Assert.IsFalse (type.Implements ("System.Collections.Generic", "ICollection`1"), "ICollection`1");
+			Assert.IsFalse (type.Implements ("System.Collections.Generic", "ICollection`1", null), "ICollection`1");
 			Assert.IsFalse (type.Implements ("System.Collections.Generic.ICollection`1"), "ICollection`1 (full)");
-			Assert.IsFalse (type.Implements ("System.Collections", "ICollection"), "ICollection");
+			Assert.IsFalse (type.Implements ("System.Collections", "ICollection", null), "ICollection");
 			Assert.IsFalse (type.Implements ("System.Collections.ICollection"), "ICollection (full)");
 		}
 
@@ -291,31 +291,31 @@ namespace Test.Framework.Rocks {
 			FixtureSetUp();
 			TypeDefinition type = assembly.MainModule.GetType(TestTypeNames.TwoGenericStringIntImplementations);
 
-			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerator"), "IEnumerator");
+			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerator", null), "IEnumerator");
 			Assert.IsTrue (type.Implements ("System.Collections.IEnumerator"), "IEnumerator (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1"), "IEnumerator`1");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1", null), "IEnumerator`1");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerator`1"), "IEnumerator`1 (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1<System.Int32>"), "IEnumerator`1<string>");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1<System.Int32>", null), "IEnumerator`1<string>");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerator`1<System.Int32>"), "IEnumerator`1<string> (full)");
 #if false
 			// TODO: implement recognition
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1<System.String>"), "IEnumerator`1<string>");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerator`1<System.String>", null), "IEnumerator`1<string>");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerator`1<System.String>"), "IEnumerator`1<string> (full)");
 
 			// unknown behaviour, whether this should be recognized or not; for now it is recognized as valid
-			//Assert.IsFalse (type.Implements ("System.Collections.Generic", "IEnumerator`1<T>"), "IEnumerator`1<T>");
+			//Assert.IsFalse (type.Implements ("System.Collections.Generic", "IEnumerator`1<T>", null), "IEnumerator`1<T>");
 			//Assert.IsFalse (type.Implements ("System.Collections.Generic.IEnumerator`1<T>"), "IEnumerator`1<T> (full)");
 #endif // false
 
-			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerable"), "IEnumerable");
+            Assert.IsTrue (type.Implements ("System.Collections", "IEnumerable", null), "IEnumerable");
 			Assert.IsTrue (type.Implements ("System.Collections.IEnumerable"), "IEnumerable (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1"), "IEnumerable`1");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1", null), "IEnumerable`1");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerable`1"), "IEnumerable`1 (full)");
 
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1<System.String>"), "IEnumerable`1<string>");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1<System.String>", null), "IEnumerable`1<string>");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerable`1<System.String>"), "IEnumerable`1<string> (full)");
 
 #if false
@@ -324,11 +324,11 @@ namespace Test.Framework.Rocks {
 			//Assert.IsFalse (type.Implements ("System.Collections.Generic.IEnumerable`1<T>"), "IEnumerable`1<T> (full)");
 #endif // false
 
-			Assert.IsTrue (type.Implements ("System", "IDisposable"), "IDisposable");
+			Assert.IsTrue (type.Implements ("System", "IDisposable", null), "IDisposable");
 
-			Assert.IsFalse (type.Implements ("System.Collections.Generic", "ICollection`1"), "ICollection`1");
+			Assert.IsFalse (type.Implements ("System.Collections.Generic", "ICollection`1", null), "ICollection`1");
 			Assert.IsFalse (type.Implements ("System.Collections.Generic.ICollection`1"), "ICollection`1 (full)");
-			Assert.IsFalse (type.Implements ("System.Collections", "ICollection"), "ICollection");
+			Assert.IsFalse (type.Implements ("System.Collections", "ICollection", null), "ICollection");
 			Assert.IsFalse (type.Implements ("System.Collections.ICollection"), "ICollection (full)");
 		}
 
@@ -338,44 +338,44 @@ namespace Test.Framework.Rocks {
 			FixtureSetUp();
 			MethodDefinition method = GetMethod ("NoEnumerator");
 			TypeReference type = method.ReturnType;
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1"), "IEnumerable`1(namespace, name)");
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1", null), "IEnumerable`1(namespace, name)");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerable`1"), "IEnumerable`1(full_name)");
-			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1<System.String>"),
+			Assert.IsTrue (type.Implements ("System.Collections.Generic", "IEnumerable`1<System.String>", null),
 						"IEnumerable`1<string>(namespace, name)");
 			Assert.IsTrue (type.Implements ("System.Collections.Generic.IEnumerable`1<System.String>"), "IEnumerable`1<string>(full_name)");
-			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerable"), "IEnumerable(namespace, name)");
+			Assert.IsTrue (type.Implements ("System.Collections", "IEnumerable", null), "IEnumerable(namespace, name)", null);
 			Assert.IsTrue (type.Implements ("System.Collections.IEnumerable"), "IEnumerable(full_name)");
 		}
 
 		[Test]
 		public void Inherits_NullParam ()
 		{
-			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).Inherits (null, "a"); }, "namespace");
-			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).Inherits ("a", null); }, "name");
+			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).Inherits (null, "a", null); }, "namespace");
+			Assert.Throws<ArgumentNullException>(delegate { GetType (String.Empty).Inherits ("a", null, null); }, "name");
 		}
 
 		[Test]
 		public void Inherits ()
 		{
-			Assert.IsFalse (GetType ("/NotAttribute").Inherits ("System", "Attribute"), "NotAttribute");
-			Assert.IsTrue (GetType ("/AnAttribute").Inherits ("System", "Attribute"), "AnAttribute");
-			Assert.IsFalse (GetType ("/ClassInheritsNotAttribute").Inherits ("System", "Attribute"), "ClassInheritsNotAttribute");
-			Assert.IsTrue (GetType ("/AttributeInheritsAnAttribute").Inherits ("System", "Attribute"), "AttributeInheritsAnAttribute");
+			Assert.IsFalse (GetType ("/NotAttribute").Inherits ("System", "Attribute", null), "NotAttribute");
+			Assert.IsTrue (GetType ("/AnAttribute").Inherits ("System", "Attribute", null), "AnAttribute");
+			Assert.IsFalse (GetType ("/ClassInheritsNotAttribute").Inherits ("System", "Attribute", null), "ClassInheritsNotAttribute");
+			Assert.IsTrue (GetType ("/AttributeInheritsAnAttribute").Inherits ("System", "Attribute", null), "AttributeInheritsAnAttribute");
 		}
 
 		[Test]
 		public void Inherits_FromSystemAssembly ()
 		{
 			// we can't be sure here so to avoid false positives return false
-			Assert.IsTrue (GetType ("/AttributeInheritsOuterAttribute").Inherits ("System", "Attribute"), "AttributeInheritsOuterAttribute");
-			Assert.IsTrue (GetType ("/AttributeInheritsOuterAttributeDerivingAttribute").Inherits ("System", "Attribute"), "AttributeInheritsOuterAttributeDerivingAttribute");
+			Assert.IsTrue (GetType ("/AttributeInheritsOuterAttribute").Inherits ("System", "Attribute", null), "AttributeInheritsOuterAttribute");
+			Assert.IsTrue (GetType ("/AttributeInheritsOuterAttributeDerivingAttribute").Inherits ("System", "Attribute", null), "AttributeInheritsOuterAttributeDerivingAttribute");
 		}
 
 		[Test]
 		public void Inherits_Itself ()
 		{
 			TypeDefinition type = GetType (String.Empty);
-			Assert.IsTrue (type.Inherits (type.Namespace, type.Name), "itself(namespace, name)");
+			Assert.IsTrue (type.Inherits (type.Namespace, type.Name, null), "itself(namespace, name)");
 			Assert.IsTrue (type.Inherits (type.FullName), "itself(full_name)");
 		}
 
@@ -385,17 +385,17 @@ namespace Test.Framework.Rocks {
 			FixtureSetUp();
 			TypeDefinition child = assembly.MainModule.GetType (TestTypeNames.NoStringEnumerator);
 			TypeDefinition parent = assembly.MainModule.GetType (TestTypeNames.NoEnumerator);
-			Assert.IsTrue (child.Inherits (child.Namespace, child.Name), "NoStringEnumerator(namespace, name)");
+			Assert.IsTrue (child.Inherits (child.Namespace, child.Name, null), "NoStringEnumerator(namespace, name)");
 			Assert.IsTrue (child.Inherits (child.FullName), "NoStringEnumerator(full_name)");
 			Assert.IsTrue (child.Inherits (TestTypeNames.NoStringEnumerator), "NoStringEnumerator(NoStringEnumerator)");
 
-			Assert.IsTrue (child.Inherits (parent.Namespace, parent.Name), "parent(namespace, name)");
+			Assert.IsTrue (child.Inherits (parent.Namespace, parent.Name, null), "parent(namespace, name)");
 			Assert.IsTrue (child.Inherits (parent.FullName), "parent(full_name)");
 			Assert.IsTrue (child.Inherits (TestTypeNames.NoEnumerator), "parent(NoEnumerator)");
 			Assert.IsTrue (child.Inherits (TestTypeNames.NoEnumerator + "<System.String>"), "parent(NoEnumerator<string>)");
 			Assert.IsFalse (child.Inherits (TestTypeNames.NoEnumerator + "<System.Int32>"), "parent(NoEnumerator<int>)");
 
-			Assert.IsTrue (parent.Inherits (parent.Namespace, parent.Name), "NoEnumerator(namespace, name)");
+			Assert.IsTrue (parent.Inherits (parent.Namespace, parent.Name, null), "NoEnumerator(namespace, name)");
 			Assert.IsTrue (parent.Inherits (parent.FullName), "NoEnumerator(full_name)");
 			Assert.IsTrue (parent.Inherits (TestTypeNames.NoEnumerator), "NoEnumerator(NoEnumerator)");
 
@@ -497,9 +497,9 @@ namespace Test.Framework.Rocks {
 			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace + ".P"), "full name: P");//Missing Text
 			Assert.IsFalse (type.IsNamed (TestTypeNames.PublicType + "ExtraText"), "full name: PublicTypeExtraText");
 
-			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "PublicType"), "name: PublicType");
-			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "P"), "name: P");//Missing Text
-			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "PublicTypeExtraText"), "name: PublicTypeExtraText");
+			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "PublicType", null), "name: PublicType");
+			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "P", null), "name: P");//Missing Text
+			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "PublicTypeExtraText", null), "name: PublicTypeExtraText");
 		}
 
 		[Test]
@@ -512,9 +512,9 @@ namespace Test.Framework.Rocks {
 			Assert.IsTrue (type.IsNamed (TestTypeNames.NoEnumerator + "<System.Long>"), "full name: NoEnumerator<long>");
 			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace + "NoEnumerator"), "full name: NoEnumerator");//Missing Text
 
-			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "NoEnumerator`1"), "name: NoEnumerator`1");
-			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "NoEnumerator`1<System.Long>"), "name: NoEnumerator`1<long>");
-			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "NoEnumerator"), "name: NoEnumerator");
+			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "NoEnumerator`1", null), "name: NoEnumerator`1");
+			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "NoEnumerator`1<System.Long>", null), "name: NoEnumerator`1<long>");
+			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "NoEnumerator", null), "name: NoEnumerator");
 		}
 
 		[Test]
@@ -527,8 +527,8 @@ namespace Test.Framework.Rocks {
 			Assert.IsFalse (type.IsNamed (TestTypeNames.NoEnumerator + "<System.String>"), "full name: NoEnumerator<String>");
 			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace + "NoEnumerator"), "full name: NoEnumerator");//Missing Text
 
-			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "NoStringEnumerator"), "name: NoStringEnumerator");
-			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "NoStringEnumerator`1"), "name: NoStringEnumerator`1");
+			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "NoStringEnumerator", null), "name: NoStringEnumerator");
+			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "NoStringEnumerator`1", null), "name: NoStringEnumerator`1");
 		}
 
 		[Test]
@@ -540,13 +540,13 @@ namespace Test.Framework.Rocks {
 			Assert.IsFalse (type.IsNamed (TestTypeNames.PublicType + "/N"), "full name: N");//Missing Text
 			Assert.IsFalse (type.IsNamed (TestTypeNames.NestedPublicType + "TypeExtaStuff"), "full name: NestedPublicTypeExtaStuff");
 
-			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "PublicType/NestedPublicType"), "name: NestedPublicType");
-			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "PublicType/N"), "name: N");//Missing Text
-			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "PublicType/NestedPublicTypeExtraText"), "name: NestedPublicTypeExtraText");
+			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "PublicType/NestedPublicType", null), "name: NestedPublicType");
+			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "PublicType/N", null), "name: N");//Missing Text
+			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "PublicType/NestedPublicTypeExtraText", null), "name: NestedPublicTypeExtraText");
 
-			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "NestedPublicType"), "not nested test for 'NestedPublicType'");
+			Assert.IsFalse (type.IsNamed (TestTypeNames.Namespace, "NestedPublicType", null), "not nested test for 'NestedPublicType'");
 			// the test bellow is probably irrelevant test because of the way the empty name space is processed in 'IsNamed'
-			Assert.IsFalse (type.IsNamed ("", "NestedPublicType"), "empty namespace and parent class for NestedPublicType");
+			Assert.IsFalse (type.IsNamed ("", "NestedPublicType", null), "empty namespace and parent class for NestedPublicType");
 		}
 
 		[Test]
@@ -556,7 +556,7 @@ namespace Test.Framework.Rocks {
 
 			Assert.IsTrue (type.IsNamed (TestTypeNames.NestedNestedPublicType));
 
-			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "PublicType/NestedPublicType/NestedNestedPublicType"));
+			Assert.IsTrue (type.IsNamed (TestTypeNames.Namespace, "PublicType/NestedPublicType/NestedNestedPublicType", null));
 		}
 
 		[Test]

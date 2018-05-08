@@ -13,10 +13,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -37,7 +37,7 @@ using Test.Rules.Definitions;
 using Test.Rules.Fixtures;
 
 namespace Test.Rules.Exceptions {
-
+	
 	[TestFixture]
 	public class DoNotSwallowErrorsCatchingNonSpecificExceptionsTest : MethodRuleTestFixture<DoNotSwallowErrorsCatchingNonSpecificExceptionsRule> {
 
@@ -49,18 +49,20 @@ namespace Test.Rules.Exceptions {
 			// no exception handler
 			AssertRuleDoesNotApply (SimpleMethods.EmptyMethod);
 		}
-
+		
 		public void SwallowErrorsCatchingExceptionEmptyCatchBlock ()
 		{
 			try {
 				File.Open ("foo.txt", FileMode.Open);
 			}
+#pragma warning disable 168
 			catch (Exception exception) {
 			}
+#pragma warning restore 168
 		}
 
 		[Test]
-		public void SwallowErrorsCatchingExceptionsEmptyCatchBlockTest ()
+		public void SwallowErrorsCatchingExceptionsEmptyCatchBlockTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("SwallowErrorsCatchingExceptionEmptyCatchBlock", 1);
 		}
@@ -77,11 +79,12 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void SwallowErrorsCatchingExceptionsNoEmptyCatchBlockTest ()
+		public void SwallowErrorsCatchingExceptionsNoEmptyCatchBlockTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("SwallowErrorsCatchingExceptionNoEmptyCatchBlock", 1);
 		}
 
+#pragma warning disable 168
 		public void SwallowErrorsCatchingSystemExceptionEmptyCatchBlock ()
 		{
 			try {
@@ -92,7 +95,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void SwallowErrorsCatchingSystemExceptionEmptyCatchBlockTest ()
+		public void SwallowErrorsCatchingSystemExceptionEmptyCatchBlockTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("SwallowErrorsCatchingSystemExceptionEmptyCatchBlock", 1);
 		}
@@ -109,7 +112,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void SwallowErrorsCatchingSystemExceptionNoEmptyCatchBlockTest ()
+		public void SwallowErrorsCatchingSystemExceptionNoEmptyCatchBlockTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("SwallowErrorsCatchingSystemExceptionNoEmptyCatchBlock", 1);
 		}
@@ -124,7 +127,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void SwallowErrorsCatchingTypeExceptionEmptyCatchBlockTest ()
+		public void SwallowErrorsCatchingTypeExceptionEmptyCatchBlockTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("SwallowErrorsCatchingTypeExceptionEmptyCatchBlock", 1);
 		}
@@ -138,9 +141,9 @@ namespace Test.Rules.Exceptions {
 				Console.WriteLine ("Has happened an exception.");
 			}
 		}
-
+		
 		[Test]
-		public void SwallowErrorsCatchingTypeExceptionNoEmptyCatchBlockTest ()
+		public void SwallowErrorsCatchingTypeExceptionNoEmptyCatchBlockTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("SwallowErrorsCatchingTypeExceptionNoEmptyCatchBlock", 1);
 		}
@@ -155,7 +158,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void SwallowErrorsCatchingAllEmptyCatchBlockTest ()
+		public void SwallowErrorsCatchingAllEmptyCatchBlockTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("SwallowErrorsCatchingAllEmptyCatchBlock", 1);
 		}
@@ -171,11 +174,12 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void SwallowErrorsCatchingAllNoEmptyCatchBlockTest ()
+		public void SwallowErrorsCatchingAllNoEmptyCatchBlockTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("SwallowErrorsCatchingAllNoEmptyCatchBlock", 1);
 		}
 
+#pragma warning disable 162
 		public void NotSwallowRethrowingGeneralException ()
 		{
 			try {
@@ -195,7 +199,7 @@ namespace Test.Rules.Exceptions {
 		{
 			AssertRuleSuccess<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("NotSwallowRethrowingGeneralException");
 		}
-
+		
 		public void NotSwallowRethrowingException ()
 		{
 			try {
@@ -226,7 +230,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void NotSwallowCatchingSpecificExceptionTest ()
+		public void NotSwallowCatchingSpecificExceptionTest () 
 		{
 			AssertRuleSuccess<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("NotSwallowCatchingSpecificException");
 		}
@@ -242,7 +246,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void NotSwallowThrowingANewExceptionTest ()
+		public void NotSwallowThrowingANewExceptionTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("NotSwallowThrowingANewException", 1);
 		}
@@ -258,7 +262,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void NotSwallowCatchingAllThrowingANewExceptionTest ()
+		public void NotSwallowCatchingAllThrowingANewExceptionTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("NotSwallowCatchingAllThrowingANewException", 1);
 		}
@@ -274,7 +278,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void NotSwallowCatchingTypeExceptionThrowingANewExceptionTest ()
+		public void NotSwallowCatchingTypeExceptionThrowingANewExceptionTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("NotSwallowCatchingTypeExceptionThrowingANewException", 1);
 		}
@@ -290,7 +294,7 @@ namespace Test.Rules.Exceptions {
 		}
 
 		[Test]
-		public void NotSwallowCatchingSystemExceptionThrowingANewExceptionTest ()
+		public void NotSwallowCatchingSystemExceptionThrowingANewExceptionTest () 
 		{
 			AssertRuleFailure<DoNotSwallowErrorsCatchingNonSpecificExceptionsTest> ("NotSwallowCatchingSystemExceptionThrowingANewException", 1);
 		}

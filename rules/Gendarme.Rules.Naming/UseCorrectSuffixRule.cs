@@ -33,6 +33,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 using Mono.Cecil;
@@ -64,7 +65,7 @@ namespace Gendarme.Rules.Naming {
 	/// Bad example:
 	/// <code>
 	/// public sealed class SpecialCode : Attribute {
-	/// 	// ...
+	///	// ...
 	/// }
 	/// </code>
 	/// </example>
@@ -72,7 +73,7 @@ namespace Gendarme.Rules.Naming {
 	/// Good example:
 	/// <code>
 	/// public sealed class SpecialCodeAttribute : Attribute {
-	/// 	// ...
+	///	// ...
 	/// }
 	/// </code>
 	/// </example>
@@ -89,25 +90,25 @@ namespace Gendarme.Rules.Naming {
 
 		static UseCorrectSuffixRule ()
 		{
-			Add ("Attribute", "System", "Attribute", true);
-			Add ("Collection", "System.Collections", "ICollection", false);
-			Add ("Collection", "System.Collections", "IEnumerable", false);
-			Add ("Collection", "System.Collections", "Queue", false);
-			Add ("Collection", "System.Collections", "Stack", false);
-			Add ("Collection", "System.Collections.Generic", "ICollection`1", false);
-			Add ("Collection", "System.Data", "DataSet", false);
-			Add ("Collection", "System.Data", "DataTable", false);
-			Add ("Condition", "System.Security.Policy", "IMembershipCondition", true);
-			Add ("DataSet", "System.Data", "DataSet", true);
-			Add ("DataTable", "System.Data", "DataTable", true);
-			Add ("Dictionary", "System.Collections", "IDictionary", false);
-			Add ("Dictionary", "System.Collections", "IDictionary`2", false);
-			Add ("EventArgs", "System", "EventArgs", true);
-			Add ("Exception", "System", "Exception", true);
-			Add ("Permission", "System.Security", "IPermission", true);
-			Add ("Queue", "System.Collections", "Queue", true);
-			Add ("Stack", "System.Collections", "Stack", true);
-			Add ("Stream", "System.IO", "Stream", true);
+			Add ("Attribute", "System", "Attribute", true, null);
+			Add ("Collection", "System.Collections", "ICollection", false, null);
+			Add ("Collection", "System.Collections", "IEnumerable", false, null);
+			Add ("Collection", "System.Collections", "Queue", false, null);
+			Add ("Collection", "System.Collections", "Stack", false, null);
+			Add ("Collection", "System.Collections.Generic", "ICollection`1", false, null);
+			Add ("Collection", "System.Data", "DataSet", false, null);
+			Add ("Collection", "System.Data", "DataTable", false, null);
+			Add ("Condition", "System.Security.Policy", "IMembershipCondition", true, null);
+			Add ("DataSet", "System.Data", "DataSet", true, null);
+			Add ("DataTable", "System.Data", "DataTable", true, null);
+			Add ("Dictionary", "System.Collections", "IDictionary", false, null);
+			Add ("Dictionary", "System.Collections", "IDictionary`2", false, null);
+			Add ("EventArgs", "System", "EventArgs", true, null);
+			Add ("Exception", "System", "Exception", true, null);
+			Add ("Permission", "System.Security", "IPermission", true, null);
+			Add ("Queue", "System.Collections", "Queue", true, null);
+			Add ("Stack", "System.Collections", "Stack", true, null);
+			Add ("Stream", "System.IO", "Stream", true, null);
 
 			// special cases
 			reservedSuffixes.Add ("Collection", message => CheckCollection (message));
@@ -121,10 +122,10 @@ namespace Gendarme.Rules.Naming {
 			reservedSuffixes.Add ("Impl", message => "Use the 'Core' prefix instead of 'Impl'.");
 		}
 
-		static void Add (string suffix, string nameSpace, string name, bool reserved)
+		static void Add (string suffix, string nameSpace, string name, bool reserved, TypeReference fallback)
 		{
 			if (reserved) {
-				reservedSuffixes.Add (suffix, message => InheritsOrImplements (message, nameSpace, name));
+				reservedSuffixes.Add (suffix, message => InheritsOrImplements (message, nameSpace, name, fallback));
 			}
 
 			HashSet<string> set;
@@ -136,25 +137,25 @@ namespace Gendarme.Rules.Naming {
 			set.Add (suffix);
 		}
 
-		static string InheritsOrImplements (TypeReference type, string nameSpace, string name)
+		static string InheritsOrImplements (TypeReference type, string nameSpace, string name, TypeReference fallback)
 		{
-			if (type.Inherits (nameSpace, name) || type.Implements (nameSpace, name))
+			if (type.Inherits (nameSpace, name, fallback) || type.Implements (nameSpace, name, fallback))
 				return String.Empty;
 
 			return String.Format (CultureInfo.InvariantCulture,
-				"'{0}' should only be used for types that inherits or implements '{1}.{2}'.",
+				"'{0}' should only be used for types that inherits or implements '{1}.{2}'.", 
 				type.Name, nameSpace, name);
 		}
 
 		static string CheckCollection (TypeReference type)
 		{
-			if (type.Implements ("System.Collections", "ICollection") ||
-				type.Implements ("System.Collections", "IEnumerable") ||
-				type.Implements ("System.Collections.Generic", "ICollection`1"))
+			if (type.Implements ("System.Collections", "ICollection", null) ||
+				type.Implements ("System.Collections", "IEnumerable", null) ||
+				type.Implements ("System.Collections.Generic", "ICollection`1", null))
 				return String.Empty;
 
-			if (type.Inherits ("System.Collections", "Queue") || type.Inherits ("System.Collections", "Stack") ||
-				type.Inherits ("System.Data", "DataSet") || type.Inherits ("System.Data", "DataTable"))
+			if (type.Inherits ("System.Collections", "Queue", null) || type.Inherits ("System.Collections", "Stack", null) || 
+				type.Inherits ("System.Data", "DataSet", null) || type.Inherits ("System.Data", "DataTable", null))
 				return String.Empty;
 
 			return "'Collection' should only be used for implementing ICollection or IEnumerable or inheriting from Queue, Stack, DataSet and DataTable.";
@@ -162,7 +163,7 @@ namespace Gendarme.Rules.Naming {
 
 		static string CheckDictionary (TypeReference type)
 		{
-			if (type.Implements ("System.Collections", "IDictionary") || type.Implements ("System.Collections.Generic", "IDictionary`2"))
+			if (type.Implements ("System.Collections", "IDictionary", null) || type.Implements ("System.Collections.Generic", "IDictionary`2", null))
 				return String.Empty;
 			return "'Dictionary' should only be used for types implementing IDictionary and IDictionary<TKey,TValue>.";
 		}
@@ -182,7 +183,7 @@ namespace Gendarme.Rules.Naming {
 				if (pos != -1)
 					name = name.Substring (0, pos);
 			}
-
+			
 			if (definedSuffixes.TryGetValue (name, out candidates)) {
 				string nspace;
 				if (namespaces.TryGetValue (name, out nspace)) {
@@ -210,7 +211,7 @@ namespace Gendarme.Rules.Naming {
 						currentTypeSuffix = true;
 				} else {
 					// if no suffix for base type is found, we start looking through interfaces
-					foreach (TypeReference iface in current.Interfaces) {
+					foreach (TypeReference iface in current.Interfaces.Select(t => t.InterfaceType)) {
 						if (TryGetCandidates (iface, out candidates)) {
 							suffixes.AddRangeIfNew (candidates);
 							if (current == type)
@@ -237,8 +238,8 @@ namespace Gendarme.Rules.Naming {
 		private static string ComposeMessage (List<string> candidates)
 		{
 			if (candidates.Count == 1) {
-				return String.Format (CultureInfo.InvariantCulture,
-					"The type name does not end with '{0}' suffix. Append it to the type name.",
+				return String.Format (CultureInfo.InvariantCulture, 
+					"The type name does not end with '{0}' suffix. Append it to the type name.", 
 					candidates [0]);
 			}
 

@@ -95,7 +95,7 @@ namespace Gendarme.Rules.Concurrency {
 				return RuleResult.DoesNotApply;
 
 			foreach (FieldDefinition field in type.Fields) {
-				if (!field.IsStatic && field.HasAttribute ("System", "ThreadStaticAttribute")) {
+				if (!field.IsStatic && field.HasAttribute ("System", "ThreadStaticAttribute", null)) {
 					Runner.Report (field, Severity.Critical, Confidence.Total);
 				}
 			}

@@ -119,7 +119,7 @@ namespace Gendarme.Rules.Performance {
 				// and report constant stuff
 				if (Constant.Get (previous.OpCode.Code)) {
 					// adjust severity based on the field visibility and it's type
-					Severity s = (field.FieldType.IsNamed ("System", "String") || !field.IsVisible ()) ?
+					Severity s = (field.FieldType.IsNamed ("System", "String",null) || !field.IsVisible ()) ?
 						Severity.High : Severity.Medium;
 					IMetadataTokenProvider cause = field.GetGeneratedCodeSource ();
 					string message = GenerateMessage (field, cause);

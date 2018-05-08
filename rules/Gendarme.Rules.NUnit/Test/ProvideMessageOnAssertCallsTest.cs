@@ -1,4 +1,4 @@
-﻿//
+﻿// 
 // Test.Rules.NUnit.ProvideMessageOnAssertCallsTest
 //
 // Authors:
@@ -70,7 +70,7 @@ namespace Test.Rules.NUnit {
 			System.Collections.Generic.List<string> ls = new System.Collections.Generic.List<string> { "a", "b" };
 			ls.Clear ();
 
-			Assert.That (new object (), Is.InstanceOf<Assembly>());
+			Assert.IsInstanceOf<Assembly> (new object ());
 			Assert.IsNull (null);
 			Assert.IsNotNull (null, "message string");
 			Assert.ReferenceEquals (new object (), new object ()); // should be ignored

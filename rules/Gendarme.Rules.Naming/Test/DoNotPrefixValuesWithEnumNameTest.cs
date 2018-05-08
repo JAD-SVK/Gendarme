@@ -68,10 +68,12 @@ namespace Test.Rules.Naming {
 
 
 		struct NonEnum {
-			int NonEnum1, NonEnum2;
-		}
+#pragma warning disable 169
+            int NonEnum1, NonEnum2;
+#pragma warning restore 169
+        }
 
-		[Test]
+        [Test]
 		public void TestNonEnum ()
 		{
 			TypeDefinition type = GetTest ("NonEnum");

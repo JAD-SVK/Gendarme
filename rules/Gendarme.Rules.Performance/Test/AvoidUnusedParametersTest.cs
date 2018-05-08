@@ -15,10 +15,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -32,6 +32,7 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -52,17 +53,18 @@ namespace Test.Rules.Performance {
 	}
 
 	public class VirtualClass {
-		public virtual void VirtualMethod (int x)
+		public virtual void VirtualMethod (int x) 
 		{
 		}
 	}
 
 	public class OverrideClass : VirtualClass {
-		public override void VirtualMethod (int x)
+		public override void VirtualMethod (int x) 
 		{
 		}
 	}
-
+	
+#pragma warning disable 659,660,661
 	[TestFixture]
 	public class AvoidUnusedParametersTest : MethodRuleTestFixture<AvoidUnusedParametersRule> {
 
@@ -71,8 +73,8 @@ namespace Test.Rules.Performance {
 		{
 			Runner.Engines.Subscribe ("Gendarme.Framework.Engines.SuppressMessageEngine");
 		}
-
-		public void PrintBannerUsingParameter (Version version)
+		
+		public void PrintBannerUsingParameter (Version version) 
 		{
 			Console.WriteLine ("Welcome to the foo program {0}", version);
 		}
@@ -82,7 +84,7 @@ namespace Test.Rules.Performance {
 			Console.WriteLine ("Welcome to the foo program {0}", Assembly.GetExecutingAssembly ().GetName ().Version);
 		}
 
-		public void PrintBannerWithoutParameters ()
+		public void PrintBannerWithoutParameters () 
 		{
 			Console.WriteLine ("Welcome to the foo program {0}", Assembly.GetExecutingAssembly ().GetName ().Version);
 		}
@@ -95,7 +97,7 @@ namespace Test.Rules.Performance {
 			AssertRuleDoesNotApply<AvoidUnusedParametersTest> ("PrintBannerWithoutParameters");
 		}
 
-		public void MethodWithUnusedParameters (IEnumerable enumerable, int x)
+		public void MethodWithUnusedParameters (IEnumerable enumerable, int x) 
 		{
 			Console.WriteLine ("Method with unused parameters");
 		}
@@ -106,7 +108,7 @@ namespace Test.Rules.Performance {
 			AssertRuleFailure<AvoidUnusedParametersTest> ("MethodWithUnusedParameters", 2);
 		}
 
-		public void MethodWith5UsedParameters (int x, IEnumerable enumerable, string foo, char c, float f)
+		public void MethodWith5UsedParameters (int x, IEnumerable enumerable, string foo, char c, float f) 
 		{
 			Console.WriteLine (f);
 			Console.WriteLine (c);
@@ -121,7 +123,7 @@ namespace Test.Rules.Performance {
 			AssertRuleSuccess<AvoidUnusedParametersTest> ("MethodWith5UsedParameters");
 		}
 
-		public static void StaticMethodWithUnusedParameters (int x, string foo)
+		public static void StaticMethodWithUnusedParameters (int x, string foo) 
 		{
 		}
 
@@ -131,7 +133,7 @@ namespace Test.Rules.Performance {
 			AssertRuleFailure<AvoidUnusedParametersTest> ("StaticMethodWithUnusedParameters", 2);
 		}
 
-		public static void StaticMethodWithUsedParameters (int x, string foo)
+		public static void StaticMethodWithUsedParameters (int x, string foo) 
 		{
 			Console.WriteLine (x);
 			Console.WriteLine (foo);
@@ -143,7 +145,7 @@ namespace Test.Rules.Performance {
 			AssertRuleSuccess<AvoidUnusedParametersTest> ("StaticMethodWithUsedParameters");
 		}
 
-		public static void StaticMethodWith5UsedParameters (int x, string foo, IEnumerable enumerable, char c, float f)
+		public static void StaticMethodWith5UsedParameters (int x, string foo, IEnumerable enumerable, char c, float f) 
 		{
 			Console.WriteLine (f);
 			Console.WriteLine (c);
@@ -167,13 +169,13 @@ namespace Test.Rules.Performance {
 		{
 			AssertRuleFailure<AvoidUnusedParametersTest> ("StaticMethodWith5UnusedParameters", 5);
 		}
-
+		
 		public delegate void SimpleCallback (int x);
-		public void SimpleCallbackImpl (int x)
+		public void SimpleCallbackImpl (int x) 
 		{
 		}
 
-		public void SimpleCallbackImpl2 (int x)
+		public void SimpleCallbackImpl2 (int x) 
 		{
 		}
 
@@ -197,7 +199,7 @@ namespace Test.Rules.Performance {
 		public void AnonymousMethodWithUnusedParameters ()
 		{
 			SimpleCallback callback = delegate (int x) {
-				//Empty
+				//Empty	
 			};
 		}
 
@@ -216,12 +218,13 @@ namespace Test.Rules.Performance {
 					}
 				}
 			}
-			Assert.Fail("method not found");
 		}
 
 		public delegate void SimpleEventHandler (int x);
+#pragma warning disable 67
 		public event SimpleEventHandler SimpleEvent;
-		public void OnSimpleEvent (int x)
+#pragma warning restore 67
+		public void OnSimpleEvent (int x) 
 		{
 		}
 
@@ -230,9 +233,9 @@ namespace Test.Rules.Performance {
 		{
 			SimpleEvent += new SimpleEventHandler (OnSimpleEvent);
 			AssertRuleDoesNotApply<AvoidUnusedParametersTest> ("OnSimpleEvent");
-		}
+		} 
 
-		public void EmptyMethod (int x)
+		public void EmptyMethod (int x) 
 		{
 		}
 
@@ -325,19 +328,19 @@ namespace Test.Rules.Performance {
 		}
 
 		[Test]
-		public void AbstractMethodTest ()
+		public void AbstractMethodTest () 
 		{
 			AssertRuleDoesNotApply<AbstractClass> ("AbstractMethod");
 		}
 
 		[Test]
-		public void VirtualMethodTest ()
+		public void VirtualMethodTest () 
 		{
 			AssertRuleDoesNotApply<VirtualClass> ("VirtualMethod");
 		}
 
 		[Test]
-		public void OverrideMethodTest ()
+		public void OverrideMethodTest () 
 		{
 			AssertRuleDoesNotApply<OverrideClass> ("VirtualMethod");
 		}
@@ -347,7 +350,7 @@ namespace Test.Rules.Performance {
 		private static extern double cos (double x);
 
 		[Test]
-		public void ExternMethodTest ()
+		public void ExternMethodTest () 
 		{
 			AssertRuleDoesNotApply<AvoidUnusedParametersTest> ("cos");
 		}

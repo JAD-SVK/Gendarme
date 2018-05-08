@@ -46,7 +46,7 @@ namespace Gendarme.Rules.Performance {
 	/// <code>
 	/// public override string ToString ()
 	/// {
-	/// 	return base.ToString ();
+	///	return base.ToString ();
 	/// }
 	/// </code>
 	/// </example>
@@ -56,7 +56,7 @@ namespace Gendarme.Rules.Performance {
 	/// [FileIOPermission (SecurityAction.Demand, @"c:\dir\file")]
 	/// public override string ToString ()
 	/// {
-	/// 	return base.ToString ();
+	///	return base.ToString ();
 	/// }
 	/// </code>
 	/// </example>
@@ -65,7 +65,7 @@ namespace Gendarme.Rules.Performance {
 	/// <code>
 	/// /*public override string ToString ()
 	/// {
-	/// 	return base.ToString ();
+	///	return base.ToString ();
 	/// }*/
 	/// </code>
 	/// </example>
@@ -84,7 +84,7 @@ namespace Gendarme.Rules.Performance {
 
 			TypeReference type = mr.DeclaringType;
 			foreach (TypeDefinition baseType in method.DeclaringType.AllSuperTypes ()) {
-				if (baseType.IsNamed (type.FullName))
+				if (baseType.IsNamed (type.Namespace, type.Name, type))
 					return true;
 			}
 			return false;
@@ -212,7 +212,7 @@ namespace Gendarme.Rules.Performance {
 
 			if (!CustomAttributesEquals (method, md) || !SecurityDeclarationsEquals (method, md))
 				return RuleResult.Success;
-
+			
 			Runner.Report (method, Severity.Medium, Confidence.High);
 			return Runner.CurrentRuleResult;
 		}

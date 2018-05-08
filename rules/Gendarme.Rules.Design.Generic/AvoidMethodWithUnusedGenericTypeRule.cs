@@ -40,23 +40,23 @@ namespace Gendarme.Rules.Design.Generic {
 	/// This method will fire if a generic method does not use all of its generic type parameters
 	/// in the formal parameter list. This usually means that either the type parameter is not used at
 	/// all in which case it should be removed or that it's used only for the return type which
-	/// is problematic because that prevents the compiler from inferring the generic type
+	/// is problematic because that prevents the compiler from inferring the generic type 
 	/// when the method is called which is confusing to many developers.
 	/// </summary>
 	/// <example>
 	/// Bad example:
 	/// <code>
 	/// public class Bad {
-	/// 	public string ToString&lt;T&gt; ()
-	/// 	{
-	/// 		return typeof (T).ToString ();
-	/// 	}
-	///
-	/// 	static void Main ()
-	/// 	{
-	/// 		// the compiler can't infer int so we need to supply it ourselves
-	/// 		Console.WriteLine (ToString&lt;int&gt; ());
-	/// 	}
+	///	public string ToString&lt;T&gt; ()
+	///	{
+	///		return typeof (T).ToString ();
+	///	}
+	///	
+	///	static void Main ()
+	///	{
+	///		// the compiler can't infer int so we need to supply it ourselves
+	///		Console.WriteLine (ToString&lt;int&gt; ());
+	///	}
 	/// }
 	/// </code>
 	/// </example>
@@ -64,15 +64,15 @@ namespace Gendarme.Rules.Design.Generic {
 	/// Good example:
 	/// <code>
 	/// public class Good {
-	/// 	public string ToString&lt;T&gt; (T obj)
-	/// 	{
-	/// 		return obj.GetType ().ToString ();
-	/// 	}
-	///
-	/// 	static void Main ()
-	/// 	{
-	/// 		Console.WriteLine (ToString (2));
-	/// 	}
+	///	public string ToString&lt;T&gt; (T obj)
+	///	{
+	///		return obj.GetType ().ToString ();
+	///	}
+	///	
+	///	static void Main ()
+	///	{
+	///		Console.WriteLine (ToString (2));
+	///	}
 	/// }
 	/// </code>
 	/// </example>
@@ -82,31 +82,31 @@ namespace Gendarme.Rules.Design.Generic {
 	[FxCopCompatibility ("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter")]
 	public class AvoidMethodWithUnusedGenericTypeRule : GenericsBaseRule, IMethodRule {
 
-		static bool FindGenericType (IGenericInstance git, string fullName)
+		static bool FindGenericType (IGenericInstance git, string nameSpace, string name, TypeReference fallback)
 		{
 			foreach (object o in git.GenericArguments) {
-				if (IsGenericParameter (o, fullName))
+				if (IsGenericParameter (o, nameSpace, name, fallback))
 					return true;
 
 				GenericInstanceType inner = (o as GenericInstanceType);
-				if ((inner != null) && (FindGenericType (inner, fullName)))
+				if ((inner != null) && (FindGenericType (inner, nameSpace, name, fallback)))
 					return true;
 			}
 			return false;
 		}
 
-		static bool IsGenericParameter (object obj, string fullName)
+		static bool IsGenericParameter (object obj, string nameSpace, string name, TypeReference fallback)
 		{
-			return (obj as GenericParameter).IsNamed (fullName);
+			return (obj as GenericParameter).IsNamed (nameSpace, name, fallback);
 		}
 
-		static bool IsGenericType (TypeReference type, string fullName)
+		static bool IsGenericType (TypeReference type, string nspace, string name, TypeReference fallback)
 		{
-			if (type.IsNamed (fullName))
+			if (type.IsNamed (nspace, name, fallback))
 				return true;
 
 			var type_spec = type as TypeSpecification;
-			if (type_spec != null && type_spec.ElementType.IsNamed (fullName))
+			if (type_spec != null && type_spec.ElementType.IsNamed (nspace, name, fallback))
 				return true;
 
 			// handle things like ICollection<T>
@@ -114,7 +114,7 @@ namespace Gendarme.Rules.Design.Generic {
 			if (git == null)
 				return false;
 
-			return FindGenericType (git, fullName);
+			return FindGenericType (git, nspace, name, fallback);
 		}
 
 		/// <summary>
@@ -133,16 +133,18 @@ namespace Gendarme.Rules.Design.Generic {
 				Severity severity = Severity.Medium;
 				bool found = false;
 				string fullName = gp.FullName;
-				// ... is being used by the method parameters
-				foreach (ParameterDefinition pd in method.Parameters) {
-					if (IsGenericType (pd.ParameterType, fullName)) {
+                string nspace = gp.Namespace;
+                string name = gp.Name;
+                // ... is being used by the method parameters
+                foreach (ParameterDefinition pd in method.Parameters) {
+					if (IsGenericType (pd.ParameterType, nspace, name, gp)) {
 						found = true;
 						break;
 					}
 				}
 				if (!found) {
 					// it's a defect when used only for the return value - but we reduce its severity
-					if (IsGenericType (method.ReturnType, fullName))
+					if (IsGenericType (method.ReturnType, nspace, name, gp))
 						severity = Severity.Low;
 				}
 				if (!found) {

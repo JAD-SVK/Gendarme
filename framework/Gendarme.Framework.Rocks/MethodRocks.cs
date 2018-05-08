@@ -49,19 +49,19 @@ namespace Gendarme.Framework.Rocks {
 	/// <summary>
 	/// MethodRocks contains extensions methods for Method[Definition|Reference]
 	/// and the related collection classes.
-	///
+	/// 
 	/// Note: whenever possible try to use MethodReference since it's extend the
 	/// reach/usability of the code.
 	/// </summary>
 	public static class MethodRocks {
 
-		public static bool IsNamed (this MemberReference self, string nameSpace, string typeName, string methodName)
+		public static bool IsNamed (this MemberReference self, string nameSpace, string typeName, string methodName, TypeReference fallback)
 		{
 			if (methodName == null)
 				throw new ArgumentNullException ("methodName");
 			if (self == null)
 				return false;
-			return ((self.Name == methodName) && self.DeclaringType.IsNamed (nameSpace, typeName));
+			return ((self.Name == methodName) && self.DeclaringType.IsNamed (nameSpace, typeName, fallback));
 		}
 
 		/// <summary>
@@ -75,7 +75,7 @@ namespace Gendarme.Framework.Rocks {
 				return false;
 
 			return (self.HasThis && !self.HasParameters && (self.Name == "Finalize") &&
-				self.ReturnType.IsNamed ("System", "Void"));
+				self.ReturnType.IsNamed ("System", "Void", null));
 		}
 
 		/// <summary>
@@ -273,18 +273,18 @@ namespace Gendarme.Framework.Rocks {
 			TypeReference type = parameters [1].ParameterType;
 			GenericParameter gp = (type as GenericParameter);
 			if (gp == null)
-				return type.Inherits ("System", "EventArgs");
+				return type.Inherits ("System", "EventArgs", null);
 
 			if (gp.HasConstraints) {
 				IList<TypeReference> cc = gp.Constraints;
-				return ((cc.Count == 1) && cc [0].IsNamed ("System", "EventArgs"));
+				return ((cc.Count == 1) && cc [0].IsNamed ("System", "EventArgs", null));
 			}
 
 			return false;
 		}
 
 		/// <summary>
-		/// Returns a property using supplied MethodReference of
+		/// Returns a property using supplied MethodReference of 
 		/// a property accessor method (getter or setter).
 		/// </summary>
 		/// <param name="self">The MethodReference on which the extension method can be called.</param>

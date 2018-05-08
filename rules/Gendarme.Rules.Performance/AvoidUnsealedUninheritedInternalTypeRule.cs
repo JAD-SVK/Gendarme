@@ -44,7 +44,7 @@ namespace Gendarme.Rules.Performance {
 	/// // this one is correct since MyInheritedStuff inherits from this class
 	/// internal class MyBaseStuff {
 	/// }
-	///
+	/// 
 	/// // this one is bad, since no other class inherit from MyConcreteStuff
 	/// internal class MyInheritedStuff : MyBaseStuff {
 	/// }
@@ -56,7 +56,7 @@ namespace Gendarme.Rules.Performance {
 	/// // this one is correct since the class is abstract
 	/// internal abstract class MyAbstractStuff {
 	/// }
-	///
+	/// 
 	/// // this one is correct since the class is sealed
 	/// internal sealed class MyConcreteStuff : MyAbstractStuff {
 	/// }
@@ -79,16 +79,17 @@ namespace Gendarme.Rules.Performance {
 				return RuleResult.Success;
 
 			ModuleDefinition module = type.Module;
-			string fullName = type.FullName;
+            string nspace = type.Namespace;
+            string name = type.Name;
 			foreach (TypeDefinition type_definition in module.GetAllTypes ()) {
 				// skip ourself
-				if (type_definition.IsNamed (fullName))
+				if (type_definition.IsNamed (nspace, name, type))
 					continue;
-				if (type_definition.Inherits (fullName))
+				if (type_definition.Inherits (nspace, name, type))
 					return RuleResult.Success;
 			}
 
-			Confidence c = module.Assembly.HasAttribute ("System.Runtime.CompilerServices", "InternalsVisibleToAttribute") ?
+			Confidence c = module.Assembly.HasAttribute ("System.Runtime.CompilerServices", "InternalsVisibleToAttribute", null) ?
 				Confidence.High : Confidence.Total;
 			Runner.Report (type, Severity.Medium, c);
 			return RuleResult.Failure;

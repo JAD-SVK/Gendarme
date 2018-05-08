@@ -115,7 +115,7 @@ namespace Gendarme.Rules.BadPractice {
 			if (type == null)
 				return false;
 
-			return type.IsNamed ("System", "Enum");
+			return type.IsNamed ("System", "Enum", null);
 		}
 
 		static bool IsCallToTypeIsAssignableFrom (Instruction instruction)
@@ -140,7 +140,7 @@ namespace Gendarme.Rules.BadPractice {
 			if (operand.Name != name)
 				return false;
 
-			return operand.DeclaringType.IsNamed ("System", "Type");
+			return operand.DeclaringType.IsNamed ("System", "Type", null);
 		}
 
 		static bool IsCall (OpCode opcode)

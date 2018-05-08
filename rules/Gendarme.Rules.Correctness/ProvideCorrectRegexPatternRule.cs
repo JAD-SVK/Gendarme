@@ -109,8 +109,8 @@ namespace Gendarme.Rules.Correctness {
 				// if we're not analyzing System.dll or System.Configuration.dll then check if we're using them
 				if (!usingRegexClass && !usingValidatorClass) {
 					Active = e.CurrentModule.AnyTypeReference ((TypeReference tr) => {
-						return tr.IsNamed ("System.Text.RegularExpressions", "Regex") ||
-							tr.IsNamed ("System.Configuration", "RegexStringValidator");
+						return tr.IsNamed ("System.Text.RegularExpressions", "Regex", null) ||
+							tr.IsNamed ("System.Configuration", "RegexStringValidator", null);
 					});
 				} else {
 					Active = true;
@@ -137,7 +137,7 @@ namespace Gendarme.Rules.Correctness {
 				return CheckPattern (method, ins, (string) ld.Operand, confidence);
 			case Code.Ldsfld:
 				FieldReference f = (FieldReference) ld.Operand;
-				if (f.Name != "Empty" || !f.DeclaringType.IsNamed ("System", "String"))
+				if (f.Name != "Empty" || !f.DeclaringType.IsNamed ("System", "String", null))
 					return false;
 				return CheckPattern (method, ins, null, confidence);
 			case Code.Ldnull:
@@ -174,7 +174,7 @@ namespace Gendarme.Rules.Correctness {
 				return;
 
 			TypeReference type = call.DeclaringType;
-			if (!type.IsNamed ("System.Text.RegularExpressions", "Regex") && !type.IsNamed ("System.Configuration", "RegexStringValidator"))
+			if (!type.IsNamed ("System.Text.RegularExpressions", "Regex", null) && !type.IsNamed ("System.Configuration", "RegexStringValidator", null))
 				return;
 
 			MethodDefinition mdef = call.Resolve ();
@@ -186,7 +186,7 @@ namespace Gendarme.Rules.Correctness {
 
 			foreach (ParameterDefinition p in mdef.Parameters) {
 				string pname = p.Name;
-				if ((pname == "pattern" || pname == "regex") && p.ParameterType.IsNamed ("System", "String")) {
+				if ((pname == "pattern" || pname == "regex") && p.ParameterType.IsNamed ("System", "String", null)) {
 					Instruction ld = ins.TraceBack (method, -(call.HasThis ? 0 : p.Index));
 					if (ld != null)
 						CheckArguments (method, ins, ld);

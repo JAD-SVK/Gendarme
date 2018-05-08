@@ -74,7 +74,7 @@ namespace Gendarme.Rules.Globalization {
 		/// <returns>true for prefered type; otherwise, false</returns>
 		protected override bool IsPrefered (TypeReference type)
 		{
-			return type.IsNamed ("System", "StringComparison");
+			return type.IsNamed ("System", "StringComparison", null);
 		}
 
 		/// <summary>

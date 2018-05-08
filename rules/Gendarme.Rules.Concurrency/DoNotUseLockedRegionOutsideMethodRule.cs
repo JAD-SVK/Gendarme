@@ -1,5 +1,5 @@
 ﻿//
-// Gendarme.Rules.Concurrency.DoNotUseLockedRegionOutsideMethodRule.cs:
+// Gendarme.Rules.Concurrency.DoNotUseLockedRegionOutsideMethodRule.cs: 
 //	looks for methods that enter an exclusive region but do not exit
 //	(this can imply deadlocks, or just a bad practice).
 //
@@ -42,10 +42,10 @@ namespace Gendarme.Rules.Concurrency {
 
 	/// <summary>
 	/// <para>
-	/// This rule will fire if a method calls <c>System.Threading.Monitor.Enter</c>,
+	/// This rule will fire if a method calls <c>System.Threading.Monitor.Enter</c>, 
 	/// but not <c>System.Threading.Monitor.Exit</c>, or vice versa. This is a bad idea for public
 	/// methods because the callers must (indirectly) manage a lock which they do not
-	/// own. This increases the potential for problems such as dead locks because
+	/// own. This increases the potential for problems such as dead locks because 
 	/// locking/unlocking may not be done together, the callers must do the unlocking
 	/// even in the presence of exceptions, and it may not be completely clear that
 	/// the public method is acquiring a lock without releasing it.
@@ -54,7 +54,7 @@ namespace Gendarme.Rules.Concurrency {
 	/// <para>
 	/// This is less of a problem for private methods because the lock is managed by
 	/// code that owns the lock. So, it's relatively easy to analyze the class to ensure
-	/// that the lock is locked and unlocked correctly and that any invariants are
+	/// that the lock is locked and unlocked correctly and that any invariants are 
 	/// preserved when the lock is acquired and after it is released. However it is
 	/// usually simpler and more maintainable if methods unlock whatever they lock.</para>
 	///
@@ -80,18 +80,18 @@ namespace Gendarme.Rules.Concurrency {
 	/// 	public void BeginEdits ()
 	/// 	{
 	/// 		Monitor.Enter (mutex);
-	/// 	}
+	///	}
 	///
 	/// 	public void AddProducer ()
 	/// 	{
-	/// 		// Real code would either assert or throw if the lock is not held.
-	/// 		producer++;
-	/// 	}
+	/// 		// Real code would either assert or throw if the lock is not held. 
+	///		producer++;
+	///	}
 	///
 	/// 	public void EndEdits ()
 	/// 	{
 	/// 		Monitor.Exit (mutex);
-	/// 	}
+	///	}
 	/// }
 	/// </code>
 	/// </example>
@@ -101,27 +101,27 @@ namespace Gendarme.Rules.Concurrency {
 	/// class GoodExample {
 	/// 	int producer = 0;
 	/// 	object mutex = new object();
-	///
-	/// 	public void AddProducer ()
-	/// 	{
+	///	
+	///	public void AddProducer ()
+	///	{
 	/// 		// We need a try block in case the assembly is compiled with
 	/// 		// checked arithmetic.
-	/// 		Monitor.Enter (mutex);
+	///		Monitor.Enter (mutex);
 	/// 		try {
-	/// 			producer++;
+	///			producer++;
 	/// 		}
-	/// 		finally {
-	/// 			Monitor.Exit (mutex);
+	///		finally {
+	///			Monitor.Exit (mutex);
 	/// 		}
-	/// 	}
-	///
-	/// 	public void AddProducer2 ()
-	/// 	{
+	///	}
+	///	
+	///	public void AddProducer2 ()
+	///	{
 	/// 		// Same as the above, but with C# sugar.
-	/// 		lock (mutex) {
-	/// 			producer++;
+	///		lock (mutex) {
+	///			producer++;
 	/// 		}
-	/// 	}
+	///	}
 	/// }
 	/// </code>
 	/// </example>
@@ -149,11 +149,11 @@ namespace Gendarme.Rules.Concurrency {
 			Runner.AnalyzeModule += delegate (object o, RunnerEventArgs e) {
 				Active = (e.CurrentAssembly.Name.Name == "mscorlib" ||
 					e.CurrentModule.AnyTypeReference ((TypeReference tr) => {
-						return tr.IsNamed ("System.Threading", "Monitor");
+						return tr.IsNamed ("System.Threading", "Monitor", null);
 					}));
 			};
 		}
-
+		
 		/// <summary>
 		/// Check method
 		/// </summary>
@@ -175,7 +175,7 @@ namespace Gendarme.Rules.Concurrency {
 			int currentSatate = 0;
 			bool underflow = false;
 			bool overflow = false;
-
+			
 			foreach (Instruction ins in method.Body.Instructions) {
 				if (ins.OpCode.FlowControl != FlowControl.Call)
 					continue;
@@ -184,21 +184,21 @@ namespace Gendarme.Rules.Concurrency {
 				if (m == null)
 					continue;
 
-				if (m.IsNamed ("System.Threading", "Monitor", "Enter")) {
+				if (m.IsNamed ("System.Threading", "Monitor", "Enter", null)) {
 					enter++;
 					currentSatate++;
 					overflow = (overflow || (currentSatate > 1));
-				} else if (m.IsNamed ("System.Threading", "Monitor", "TryEnter")) {
+				} else if (m.IsNamed ("System.Threading", "Monitor", "TryEnter", null)) {
 					tryEnter++;
 					currentSatate++;
 					overflow = (overflow || (currentSatate > 1));
-				} else if (m.IsNamed ("System.Threading", "Monitor", "Exit")) {
+				} else if (m.IsNamed ("System.Threading", "Monitor", "Exit", null)) {
 					exit++;
 					currentSatate--;
 					underflow = (underflow || (currentSatate < 0));
 				}
 			}
-
+			
 			Severity severity;
 
 			if (underflow) {

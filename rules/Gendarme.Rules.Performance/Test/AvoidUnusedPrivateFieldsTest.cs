@@ -13,10 +13,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -51,12 +51,14 @@ namespace Test.Rules.Performance {
 			AssertRuleSuccess (SimpleTypes.Structure);	// a few public fields
 		}
 
+#pragma warning disable 169
 		class ClassUnusedStaticPrivateField {
 			private static int x;
 
 			[DllImport ("libc.so")]
 			private static extern void strncpy (StringBuilder dest, string src, uint n);
 		}
+#pragma warning restore 169
 
 		[Test]
 		public void Class ()
@@ -64,6 +66,7 @@ namespace Test.Rules.Performance {
 			AssertRuleFailure<ClassUnusedStaticPrivateField> (1);
 		}
 
+#pragma warning disable 169
 		class ClassUnusedPrivateField {
 			private int x;
 			public int X {
@@ -71,6 +74,7 @@ namespace Test.Rules.Performance {
 				set { ; }
 			}
 		}
+#pragma warning restore 169
 
 		class ClassPrivateField {
 			private int x;
@@ -141,11 +145,12 @@ namespace Test.Rules.Performance {
 			AssertRuleSuccess<ClassConstSmallInt> ();
 			AssertRuleSuccess<ClassConstSmallerInt> ();
 		}
-
+#pragma warning disable 169
 		class GenericUnused<T> {
 			IList<T> list;
 		}
-
+#pragma warning restore 169
+#pragma warning disable 649
 		class GenericUsed<T> {
 			IList<T> list;
 
@@ -155,7 +160,7 @@ namespace Test.Rules.Performance {
 					Console.WriteLine (t);
 			}
 		}
-
+#pragma warning restore 649
 		[Test]
 		public void GenericsFields ()
 		{
@@ -163,6 +168,7 @@ namespace Test.Rules.Performance {
 			AssertRuleSuccess<GenericUsed<int>> ();
 		}
 
+#pragma warning disable 414
 		class FieldsUsedInNested {
 			private bool field;
 
@@ -176,28 +182,31 @@ namespace Test.Rules.Performance {
 				}
 			}
 		}
+#pragma warning restore 414
 
 		[Test]
 		public void FieldsUsedInNestedType ()
 		{
 			AssertRuleSuccess<FieldsUsedInNested> ();
 		}
-
+		
 		class CompilerGenerated {
 			public string Name { get; set; }
 		}
-
+		
 		[Test]
 		public void ClassWithCompilerGeneratedFields ()
 		{
 			AssertRuleSuccess<CompilerGenerated> ();
 		}
-
+		
+#pragma warning disable 169
 		class CompilerGeneratedAndUnused {
 			private int number;
 			public string Name { get; set; }
 		}
-
+#pragma warning restore 169
+		
 		[Test]
 		public void ClassWithCompilerGeneratedFieldsAndUnusedPrivate ()
 		{
